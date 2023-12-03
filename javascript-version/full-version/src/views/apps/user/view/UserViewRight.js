@@ -42,7 +42,7 @@ const TabList = styled(MuiTabList)(({ theme }) => ({
 
 // FIND A WAY TO REFACTOR and REMOVE USERROUTER uselessly slow!!! and very unnecessary just keep the tabs in the same page they dont need their own page. See the AccountSettings.js you've done it there just replicated.
 //
-const UserViewRight = ({ tab, invoiceData, patientData }) => {
+const UserViewRight = ({patientData, tab, invoiceData }) => {
   // ** State
   const [activeTab, setActiveTab] = useState(tab || 'recordsList')
   const [isLoading, setIsLoading] = useState(false)
@@ -79,7 +79,7 @@ const UserViewRight = ({ tab, invoiceData, patientData }) => {
 
     const tabContentList = {
       // overview: <PatientOverview />,
-      recordsList: <PatientRecordsList/>,
+      recordsList: <PatientRecordsList patientData={patientData} />,
       createRecord: <PatientRecordsCreate />,
       connections: <UserViewConnection />,
       // security: <UserViewSecurity />,

@@ -37,33 +37,15 @@ const patientStatusObj = {
 }
 
 
-const patientRecordList = () => {
+const patientRecordList = ({ patientData }) => {
+  console.log(" DATARecordList", patientData)
+  const patientId = patientData?.id
+
   // ** State
   const [anchorEl, setAnchorEl] = useState(null)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 7 })
-  // const [selectedId, setSelectedId] = useState(null);
-
   
-  const router = useRouter();
-  const {patientId} = router.query;
-  console.log("Patiet_ID", patientId)
-
-  const jwtToken = Cookies.get('jwt');
-  
-  // decode the User Id from JWT
-  // const idDecoder = jwt_decode(jwtToken || undefined);
-  // console.log("ID", idDecoder);
-  // const id = idDecoder.id;
-
-  //FETCH DATA FROM STRAPI
-  const { loading, error, data } = useFetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/patients/${patientId}?populate=patient_records`, {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${jwtToken}`,
-    },
-  })
-  
-  const mappedRecords = data?.data?.attributes.patient_records?.data.map(record => ({
+  const mappedRecords = patientData?.attributes.patient_records?.data.map(record => ({
     id: record.id,
     issuedDate: record.attributes.record_date,
     title: record.attributes.record_title,
@@ -79,14 +61,12 @@ const patientRecordList = () => {
     allergies: record.attributes.allergies,
     total: record.attributes.total,
     // patientStatus: record.attributes.status,
-    patient: record.attributes.patient?.data.id
+    patient: patientData.id
   }));
 
-  if (!patientId || loading) return <p className="mx-15 text-3xl">LOADING...</p>
-  if (error) return <p className="ml-20 text-3xl">Hollllly 🐄... Something went Wrong. Try reloading the page </p>
-  console.log("RECORDSList", data);
-  console.log("PATIENT_ID", patientId)
-  console.log("JWT", jwtToken);
+  console.log("MAPPED123", mappedRecords)
+
+  const router = useRouter();
 
 
   // ** Vars
@@ -97,17 +77,14 @@ const patientRecordList = () => {
 
   const handleClose = () => setAnchorEl(null) 
   
-  const handleIdCellClick = (recordId, event) => {
-    console.log(`Cell with id: ${recordId} clicked`, event);
-    console.log(`PATIENTID: ${patientId} `);
-    // apps/user/list/patients/${id}/records/${recordId}
-    router.push(`/apps/user/list/patients/${patientId}/records/${recordId}`);
+  // const handleIdCellClick = (recordId) => {
+  //   router.push(`/apps/user/list/patients/${patientId}/records/${recordId}`);
     // event.defaultMuiPrevented = true;
     // setSelectedId(id); 
     // setOpenDialogue(true);
     // console.log(`Cell with id: ${id} clicked`, event);
     
-  };
+  // };
     
   const handleCloseDialogue = () => setOpenDialogue(false)
 
@@ -119,15 +96,9 @@ const patientRecordList = () => {
       headerName: 'ID #',
       renderCell: ({row}) => {
         return (
-          <div
-            style={{ cursor: 'pointer', color: 'blue', }}
-            onClick={(event) => {
-              event.stopPropagation(); 
-              handleIdCellClick(row.id); 
-            }}
-          >
-            #{row.id}
-          </div>
+          <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', color: 'blue', }}>
+            <LinkStyled href={`/apps/user/list/patients/${patientId}/records/${row.id}`}>{row.id}</LinkStyled>
+          </Box>
         );
       },
     },

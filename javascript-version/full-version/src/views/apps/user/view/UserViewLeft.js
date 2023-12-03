@@ -1,6 +1,5 @@
 // ** React Imports
 import { useState } from 'react'
-import { useRouter } from 'next/router';
 import Cookies from 'js-cookie';
 
 // ** MUI Imports
@@ -41,8 +40,7 @@ const Sub = styled('sub')({
   alignSelf: 'flex-end'
 })
 
-const UserViewLeft = (data) => {
-  console.log('DATAINLEFT', data)
+const UserViewLeft = ({patientData}) => {
   // ** States
   const [openEdit, setOpenEdit] = useState(false)
   const [openPlans, setOpenPlans] = useState(false)
@@ -57,34 +55,35 @@ const UserViewLeft = (data) => {
   const handlePlansClickOpen = () => setOpenPlans(true)
   const handlePlansClose = () => setOpenPlans(false)
   
+  console.log('dataCHECK', patientData)  
 
-  if (data) {
-    console.log('dataCHECK', data)
+
+  if (patientData) {
     return (
       <Grid container spacing={6}>
         <Grid item xs={12}>
           <Card>
             <CardContent sx={{ pt: 0, display:'flex', alignItems: 'center', flexDirection: 'column' }}>
-              {data.avatar ? (
+              {patientData.avatar ? (
                 <CustomAvatar
-                  src={data.avatar}
+                  src={patientData.avatar}
                   variant='rounded'
-                  alt={data.fullName}
+                  alt={patientData.fullName}
                   sx={{ width: 150, height: 150, fontWeight: 600, mb: 4, justifyContent: 'center' }}
                 />
               ) : (
                 <CustomAvatar
                   skin='light'
                   variant='rounded'
-                  color={data.avatarColor}
+                  color={patientData.avatarColor}
                   sx={{ width: 150, height: 150, fontWeight: 600, mb: 4, fontSize: '3rem',justifyContent: 'center' }}
                 >
-                    {data.data?.attributes?.patient_fullName}
+                    {patientData.data?.attributes?.patient_fullName}
                     {/* {getInitials(data.fullName)} */}
                 </CustomAvatar>
               )}
               <Typography variant='h6' sx={{ mb: 4, textTransform: 'capitalize', justifyItems: 'left' }}>
-                {data.data?.attributes?.patient_role}
+                {patientData.attributes?.patient_role}
               </Typography>
               {/* <CustomChip
                 skin='light'
@@ -133,42 +132,42 @@ const UserViewLeft = (data) => {
               <Box sx={{ pb: 1 }}>
                 <Box sx={{ display: 'flex', mb: 2 }}>
                   <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Email:</Typography>
-                  <Typography variant='body2'>{data.data?.attributes?.patient_email}</Typography>
+                  <Typography variant='body2'>{patientData.attributes?.patient_email}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', mb: 2 }}>
                   <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Mobile:</Typography>
-                  <Typography variant='body2'>+{data.data?.attributes?.patient_countryCode} {data.data?.attributes?.patient_contact}</Typography>
+                  <Typography variant='body2'>+{patientData.attributes?.patient_countryCode} {patientData.attributes?.patient_contact}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', mb: 2 }}>
                   <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>SSN:</Typography>
-                  <Typography variant='body2'>{data.data?.attributes?.patient_SSN}</Typography>
+                  <Typography variant='body2'>{patientData.attributes?.patient_SSN}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', mb: 2 }}>
                   <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Country:</Typography>
-                  <Typography variant='body2'> {data.data?.attributes?.patient_country}</Typography>
+                  <Typography variant='body2'> {patientData.attributes?.patient_country}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', mb: 2 }}>
                   <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Address:</Typography>
-                  <Typography variant='body2'>{data.data?.attributes?.patient_address}</Typography>
+                  <Typography variant='body2'>{patientData.attributes?.patient_address}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', mb: 2 }}>
                   <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>City:</Typography>
-                  <Typography variant='body2'>{data.data?.attributes?.patient_city}</Typography>
+                  <Typography variant='body2'>{patientData.attributes?.patient_city}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', mb: 2 }}>
                   <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Company:</Typography>
-                  <Typography variant='body2'> {data.data?.attributes?.patient_company}</Typography>
+                  <Typography variant='body2'> {patientData.attributes?.patient_company}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', mb: 2 }}>
                   <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Status:</Typography>
                   <Typography variant='body2' sx={{ textTransform: 'capitalize' }}>
-                    {data.data?.attributes?.patient_status}
+                    {patientData.attributes?.patient_status}
                   </Typography>
                 </Box>
                 <Box sx={{ display: 'flex' }}>
                   <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Role:</Typography>
                   <Typography variant='body2' sx={{ textTransform: 'capitalize' }}>
-                    {data.data?.attributes?.patient_role}
+                    {patientData.attributes?.patient_role}
                   </Typography>
                 </Box>
               </Box>
@@ -201,10 +200,10 @@ const UserViewLeft = (data) => {
                 <form>
                   <Grid container spacing={6}>
                     <Grid item xs={12} sm={6}>
-                      <TextField fullWidth label='Full Name' defaultValue={data.fullName} />
+                      <TextField fullWidth label='Full Name' defaultValue={patientData.fullName} />
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <TextField fullWidth type='email' label='Billing Email' defaultValue={data.email} />
+                      <TextField fullWidth type='email' label='Billing Email' defaultValue={patientData.email} />
                     </Grid>
                     {/* <Grid item xs={12} sm={6}>
                       <TextField fullWidth label='Contact' defaultValue={`+1 ${data.contact}`} />
@@ -216,7 +215,7 @@ const UserViewLeft = (data) => {
                       <TextField
                         fullWidth
                         label='Address'
-                        defaultValue={data.address}
+                        defaultValue={patientData.address}
                         // InputProps={{ startAdornment: <InputAdornment position='start'></InputAdornment> }}
                       />
                     </Grid>
@@ -253,7 +252,7 @@ const UserViewLeft = (data) => {
                         <InputLabel id='user-view-status-label'>Status</InputLabel>
                         <Select
                           label='Status'
-                          defaultValue={data.status}
+                          defaultValue={patientData.status}
                           id='user-view-status'
                           labelId='user-view-status-label'
                         >

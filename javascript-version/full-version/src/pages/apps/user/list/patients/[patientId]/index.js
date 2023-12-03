@@ -10,16 +10,18 @@ import useFetch from 'src/hooks/useFetch';
 import UserViewLeft from 'src/views/apps/user/view/UserViewLeft';
 import UserViewRight from 'src/views/apps/user/view/UserViewRight';
 
-const PatientDetails = ({ tab, invoiceData, patientData }) => {
+const PatientDetails = ({ tab, invoiceData }) => {
 
   const router = useRouter();
-  const { patientId, recordId } = router.query;
+  const { patientId } = router.query;
+  console.log("PATIENTID", patientId)
+  // !patientId ? params.patientId : patientId
 
   const jwtToken = Cookies.get('jwt');
 
   // FETCH DATA FROM STRAPI
   // we need only the data from the patient whose ID was clicked in the DataGrid 
-  const { loading, error, data } = useFetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/patients/${patientId}`, {
+  const { loading, error, data } = useFetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/patients/${patientId}?populate=patient_records`, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${jwtToken}`,
@@ -35,10 +37,10 @@ const PatientDetails = ({ tab, invoiceData, patientData }) => {
   return (
     <Grid container spacing={6}>
       <Grid item xs={12} md={5} lg={4}>
-        <UserViewLeft data={data.data} />
+        <UserViewLeft patientData={data.data} />
       </Grid>
       <Grid item xs={12} md={7} lg={8}>
-        <UserViewRight  recordId={recordId} tab={tab} invoiceData={invoiceData} />
+        <UserViewRight patientData={data.data} tab={tab} invoiceData={invoiceData} />
       </Grid>
     </Grid>
   )

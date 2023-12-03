@@ -22,34 +22,48 @@ const CustomInput = forwardRef((props, ref) => {
   return <TextField required fullWidth inputRef={ref} label='Date of Visit' {...props} />
 })
 
-const RecordId = () => { 
+const RecordId = ({patientData}) => { 
+  console.log('paeitntDATA', patientData)
   const router = useRouter();
-  const { id } = router.query;
-  console.log('ID from useRouter:', id);
-  
-  // **Snackbar Hooks
-  //  const { settings } = useSettings()
-  //  const { skin } = settings
 
+  if (!patientData) return <p className="mx-15 text-3xl">Error: Unable to load patient data.</p>;
+  // CONSIDER CHANGING ALL THE FETCHING LOGIC INTO A HOOK BASED ON getServerSideProps. By using getServerSideProps the whole fetching logic is removed and it looks way more elegant and consistent
   
-  const jwtToken = Cookies.get('jwt');
+  const {data} = patientData;
+  if (!data) return <p className="mx-15 text-3xl">LOADING...</p>
+  if (!data.data) return <p className="ml-20 text-3xl">Hollllly 🐄... Something went Wrong. Try reloading the page </p>
+
+  // const router = useRouter();
+  // const { recordId } = router.query;
+  // console.log("RECORDID RECORD", recordId)
+  
+  // // **Snackbar Hooks
+  // //  const { settings } = useSettings()
+  // //  const { skin } = settings
+  
+  // const jwtToken = Cookies.get('jwt');
 
   // //FETCH DATA FROM STRAPI
-  const { loading, error, data } = useFetch(id ? `${process.env.NEXT_PUBLIC_STRAPI_API_URL}/patient-records/${id}` : null , {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${jwtToken}`,
-    },
-  });
+  // const { loading, error, data } = useFetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/patient-records/${recordId}`, {
+  //   method: 'GET',
+  //   headers: {
+  //     Authorization: `Bearer ${jwtToken}`,
+  //   },
+  // });
 
-  if (!id || loading) return <p className="mx-15 text-3xl">LOADING...</p>
-  if (error) return <p className="ml-20 text-3xl">Hollllly 🐄... Something went Wrong. Try reloading the page </p>
-  console.log('PRECORDid2', id)
-  console.log("req_PRECORDS_id", data);
-  console.log("JWT", jwtToken);
+  // if (!recordId || loading) return <p className="mx-15 text-3xl">LOADING...</p>
+  // if (error) return <p className="ml-20 text-3xl">Hollllly 🐄... Something went Wrong. Try reloading the page </p>
+  // // console.log('PRECORDid2', recordId)
+  // console.log("req_PRECORDS_id", data);
+  // console.log("JWT", jwtToken);
 
   return (
-  <>
+  <>              
+  
+  <Grid item xs={12} md={5} lg={4} sx={{marginRight:'15px', marginBottom:'15px'}}>
+      <UserViewLeft patientData />
+    </Grid>
+
     <CardContent>
 
       <Grid container spacing={6}>
@@ -58,8 +72,7 @@ const RecordId = () => {
           </Grid>
         
           <Grid item xs={12} md={7} lg={7.8}  sx={{ boxShadow: '2px 2px 15px rgba(0, 0, 0, 0.45)', borderRadius:'7px', paddingRight:'15px' }} >
-            <Typography fullWidth
-            sx={{fontSize:'28px',  paddingBottom:'20px'}}            
+            <Typography sx={{fontSize:'28px',  paddingBottom:'20px'}}            
             // onChange={(e) => setPatientRecordData({ ...patientRecordData, record_title: e.target.value})} 
             > <b>Record Title:</b> {data.data?.attributes?.record_title || ''}  </Typography>
          
@@ -134,5 +147,40 @@ const RecordId = () => {
     </>
   );
 };
+
+export async function getServerSideProps(context) {
+  const { params } = context;
+  const recordId = params.recordId; 
+  console.log("RECORDID", recordId)
+
+  const jwtToken = context.req.cookies.jwt; // access cookies from the server side
+  console.log("JWT", jwtToken)
+
+  // const jwtToken = Cookies.get('jwt');
+
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/patient-records/${recordId}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    });
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch. Status: ${res.status}`);
+  }
+
+  const patientData = await res.json();
+  console.log('PATIENTDATA', patientData)
+    return { props: { patientData } };
+  } catch (error) {
+    console.error('Failed to fetch patient data:', error);
+    return { 
+      props: { 
+        patientData: null, error: error.message 
+      } 
+    };
+  }
+}
 
 export default RecordId;
