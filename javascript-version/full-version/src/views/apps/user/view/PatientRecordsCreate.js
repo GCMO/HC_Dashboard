@@ -256,7 +256,7 @@ const createPatientRecords = () => {
             <Box sx={{ border: '1px solid silver',  borderRadius: '4px', backgroundColor: 'white',  maxWidth: '100%', p: 2, }} 
             >
             <TextField fullWidth variant="outlined" placeholder="Miscellaneous" sx={{ mb: 2 }}
-              value={title}
+              value={'' || patientRecordData.record_title}
               onChange={(e) => setTitle(e.target.value)}
             />
     

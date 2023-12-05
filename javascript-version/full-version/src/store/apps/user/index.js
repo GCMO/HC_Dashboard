@@ -52,7 +52,7 @@ export const fetchData = createAsyncThunk('appUsers/fetchData', async ({ userId,
     company: patient.patient_company || '',
     SSN: patient.patient_SSN || '',
     records: patient.patient_records || '',
-    user: patient.users_permissions_user || '',
+    user: patient.user || '',
     avatar: '/images/avatars/3.png',
   }));
   console.log("PATIENTmapped", patients)
@@ -82,7 +82,7 @@ export const addUser = createAsyncThunk('appUsers/addUser', async (data, { getSt
         patient_SSN: data.patient_SSN || '',
         patient_role: data.role || '',
         patient_status: data.status || '',
-        users_permissions_user: UserId,
+        user: UserId,
     }
   };
 
@@ -100,7 +100,7 @@ export const addUser = createAsyncThunk('appUsers/addUser', async (data, { getSt
       ...data,
       avatar: 'images/avatars/1.png',
       avatarColor: 'secondary',
-      users_permissions_user: UserId,
+      user: UserId,
     }
     console.log("New Patient Data", newPatient);
 

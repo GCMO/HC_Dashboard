@@ -16,7 +16,7 @@ import UserSuspendDialog from 'src/views/apps/user/view/UserSuspendDialog'
 import UserSubscriptionDialog from 'src/views/apps/user/view/UserSubscriptionDialog'
  
 //** Utils Import
-// import { getInitials } from 'src/@core/utils/get-initials'
+import { getInitials } from 'src/@core/utils/get-initials'
 
 const roleColors = {
   admin: 'error',
@@ -64,22 +64,21 @@ const UserViewLeft = ({patientData}) => {
         <Grid item xs={12}>
           <Card>
             <CardContent sx={{ pt: 0, display:'flex', alignItems: 'center', flexDirection: 'column' }}>
-              {patientData.avatar ? (
-                <CustomAvatar
+              {patientData.avatar ? ( 
+                <CustomAvatar variant='rounded'
                   src={patientData.avatar}
-                  variant='rounded'
                   alt={patientData.fullName}
-                  sx={{ width: 150, height: 150, fontWeight: 600, mb: 4, justifyContent: 'center' }}
+                  sx={{ width: 150, height: 150, fontWeight: 600, mb: 4 }}
                 />
               ) : (
                 <CustomAvatar
                   skin='light'
                   variant='rounded'
                   color={patientData.avatarColor}
-                  sx={{ width: 150, height: 150, fontWeight: 600, mb: 4, fontSize: '3rem',justifyContent: 'center' }}
+                  sx={{ width: '100%', height: 150, fontWeight: 600, mb: 4, fontSize: '3rem',display: 'flex', justifyContent: 'center', alignItems: 'center'  }}
                 >
-                    {patientData.data?.attributes?.patient_fullName}
-                    {/* {getInitials(data.fullName)} */}
+                    {patientData.attributes?.patient_fullName}
+                    {/* {getInitials(patientData.attributes?.patient_fullName)} */}
                 </CustomAvatar>
               )}
               <Typography variant='h6' sx={{ mb: 4, textTransform: 'capitalize', justifyItems: 'left' }}>
@@ -88,8 +87,8 @@ const UserViewLeft = ({patientData}) => {
               {/* <CustomChip
                 skin='light'
                 size='small'
-                label={data.data?.attributes?.patient_role}
-                color={roleColors[data.data?.attributes?.patient_role]}
+                label={patientData?.attributes?.patient_role}
+                color={roleColors[patientData?.attributes?.patient_role]}
                 sx={{ textTransform: 'capitalize' }}
               /> */}
             </CardContent>

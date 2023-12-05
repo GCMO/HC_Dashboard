@@ -8,8 +8,8 @@ import Link from 'next/link'
 import Cookies from 'js-cookie';
 
 // ** MUI Imports
-import {Box, Card, Menu, Grid, Button, Tooltip, MenuItem, styled, CardHeader, CardContent, IconButton, Typography} from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
+import {Modal, Box, Card, Menu, Grid, Button, Tooltip, MenuItem, styled, CardHeader, CardContent, IconButton, Typography} from '@mui/material';
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -44,6 +44,17 @@ const patientRecordList = ({ patientData }) => {
   // ** State
   const [anchorEl, setAnchorEl] = useState(null)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 7 })
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCell, setSelectedCell] = useState(null);
+
+  const handleOpenModal = (rowId) => {
+    setSelectedCell(rowId);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
   
   const mappedRecords = patientData?.attributes.patient_records?.data.map(record => ({
     id: record.id,
@@ -77,12 +88,12 @@ const patientRecordList = ({ patientData }) => {
 
   const handleClose = () => setAnchorEl(null) 
   
-  // const handleIdCellClick = (recordId) => {
+  // const handleIdCellClick = ({recordId}) => {
   //   router.push(`/apps/user/list/patients/${patientId}/records/${recordId}`);
-    // event.defaultMuiPrevented = true;
-    // setSelectedId(id); 
-    // setOpenDialogue(true);
-    // console.log(`Cell with id: ${id} clicked`, event);
+  //   event.defaultMuiPrevented = true;
+  //   setSelectedId(id); 
+  //   setOpenDialogue(true);
+  //   console.log(`Cell with id: ${id} clicked`, event);
     
   // };
     
@@ -178,14 +189,12 @@ const patientRecordList = ({ patientData }) => {
               <Icon icon='mdi:delete-outline' fontSize={20} />
             </IconButton>
           </Tooltip>
-          <Tooltip title='View'>
-            <IconButton size='small' onClick={(event) => {
-              event.stopPropagation(); 
-              handleIdCellClick(row.id); 
-            }}
-            >
-              <Icon icon='mdi:eye-outline' fontSize={20} />
-            </IconButton>
+          <Tooltip title='View'>        
+            {/* <LinkStyled href={`/apps/user/list/patients/${patientId}/records/${row.id}`} passHref> */}
+              <IconButton size='small' component='a' onClick={() => handleOpenModal(row.id)} key={row.id}>
+                <Icon icon='mdi:eye-outline' fontSize={20} />
+              </IconButton>
+            {/* </LinkStyled> */}
           </Tooltip>
           <Tooltip title='Download'>
             <IconButton size='small' >
@@ -260,9 +269,29 @@ const patientRecordList = ({ patientData }) => {
             onPaginationModelChange={setPaginationModel}
           />
         </CardContent>
-
       </Card>
+    <Modal
+      open={isModalOpen}
+      onClose={handleCloseModal}
+      transitionDuration={1000}
+      transitionTimingFunction="ease"
+      closeButtonLabel="Close"
+      transition="fade"
+      size="90%"
+      // maxWidth="600px"
+      radius="lg"
+      yOffset="1vh" xOffset={0}
+    >
+      <Box>
+        <PatientRecordsModal
+          open={isModalOpen}
+          onClose={handleCloseModal}
+          recordId={selectedCell} 
+        />
+      </Box>
+    </Modal>
     </Grid>
+
     </>
   )
 }

@@ -341,16 +341,16 @@ const UserList = ({ apiData }) => {
   )
 }
 
-// this getStaticProps is to fetch the Card Stats, which is now hidden from rendering line 273.
-export const getStaticProps = async () => {
-  const res = await axios.get('/cards/statistics')
-  const apiData = res.data
+// this getStaticProps is to fetch the Card Stats, which is now hidden from rendering: line 305.
+// export const getStaticProps = async () => {
+//   const res = await axios.get('/cards/statistics')
+//   const apiData = res.data
 
-  return {
-    props: {
-      apiData
-    }
-  }
-}
+//   return {
+//     props: {
+//       apiData
+//     }
+//   }
+// }
 
 export default UserList
