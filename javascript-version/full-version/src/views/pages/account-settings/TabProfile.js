@@ -5,7 +5,7 @@ import { useState, Fragment } from 'react';
 import Cookies from 'js-cookie';
 import jwt_decode from 'jwt-decode';
 // ** MUI Imports
-import {Grid, Alert, Snackbar, Select, Button, MenuItem, TextField, InputLabel,  CardContent, FormControl, OutlinedInput} from '@mui/material';
+import {Grid, Alert, Snackbar, Select, Button, MenuItem, TextField, InputLabel,  CardContent, CardHeader, FormControl, OutlinedInput} from '@mui/material';
 // ** Hooks
 import useFetch from 'src/hooks/useFetch';
 import { useSettings } from 'src/@core/hooks/useSettings';
@@ -128,6 +128,9 @@ const TabProfile = () => {
 
   return (
     <CardContent>
+
+      <CardHeader title='Profile Overview' sx={{marginLeft: -5, }} />
+
       <form>
         <Grid container spacing={7}>
 

@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 
 //** 3rd Party Imports 
 import Cookies from 'js-cookie';
+import cookie from 'cookie';
 import DatePicker from 'react-datepicker'
 
 // ** MUI imports
@@ -22,23 +23,22 @@ const CustomInput = forwardRef((props, ref) => {
   return <TextField required fullWidth inputRef={ref} label='Date of Visit' {...props} />
 })
 
-const RecordId = () => { 
+const RecordId = ({ patientData }) => { 
 
   // if (!patientData) return <p className="mx-15 text-3xl">Error: Unable to load patient data.</p>;
+  // If `pRecord` is null, it means there is no record with the specified recordId
+  // if (!pRecord) return <p>Error: Record not found.</p>;
+
   // CONSIDER CHANGING ALL THE FETCHING LOGIC INTO A HOOK BASED ON getServerSideProps. By using getServerSideProps the whole fetching logic is removed and it looks way more elegant and consistent
   
-  // const {data} = patientData;
-  // if (!data) return <p className="mx-15 text-3xl">LOADING...</p>
-  // if (!data.data) return <p className="ml-20 text-3xl">Hollllly 🐄... Something went Wrong. Try reloading the page </p>
+  // **Snackbar Hooks
+  //  const { settings } = useSettings()
+  //  const { skin } = settings
 
   const router = useRouter();
   const { recordId, patientId } = router.query;
   console.log("RECORDID", recordId)
   console.log("PATIENTID", patientId)
-
-  // **Snackbar Hooks
-  //  const { settings } = useSettings()
-  //  const { skin } = settings
   
   const jwtToken = Cookies.get('jwt');
 
@@ -139,43 +139,48 @@ const RecordId = () => {
 };
 
 // export async function getServerSideProps(context) {
-//   const { params } = context;
-//   console.log ('CONTEXT', context)
-
-//   const recordId = params.recordId; 
-//   console.log("RECORDID", recordId)
-
-//   const jwtToken = context.req.cookies.jwt; // access cookies from the server side
-//   console.log("JWT", jwtToken)
+//   const { recordId, patientId,  req } = context;
+//   console.log ('PARAMSgetServerSideProps', context)
 
 //   try {
-//     const res = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/patients/${patientId}?populate[patient_records][filters][id]=${recordId}`, {
-//       method: 'GET',
+//     // Parse cookies from the request & adjust the key if necessary
+//     const parsedCookies = cookie.parse(req.headers.cookie || '');
+//     const jwtToken = parsedCookies.jwt; 
+//     console.log("SSR_JWT", jwtToken)
+
+//     if (!jwtToken) {
+//       throw new Error("JWT token is not available");
+//     }
+
+//     const res = await fetch (`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/patients/${patientId}?populate[patient_records][filters][id]=${recordId}`, {
 //       headers: {
+//         'Content-Type': 'application/json',
 //         Authorization: `Bearer ${jwtToken}`,
 //       },
-//     });
+//     })
 
-//   if (!res.ok) {
-//     throw new Error(`Failed to fetch. Status: ${res.status}`);
+//     if (!res.ok) { throw new Error(`Failed to fetch. Status: ${res.status}`); }
+
+//     const patientData = await res.json();
+//     console.log('PppppDATA', patientData)
+
+//     const pRecord = patientData.data?.attributes.patient_records.data[0];
+
+//     if (!patientData) return { props: { patientData: null, error: 'Error: Unable to load patient data.' } };
+
+//     if (!pRecord) return { props: { patientData: null, error: 'Error: Record not found.' } };
+
+//       return {
+//         props: {
+//           patientData: patientData,
+//           pRecord: pRecord,
+//         },
+//       };
+//     } catch (error) {
+//     console.error(error);
+//     return { props: { error: error.message } };
 //   }
+// };
 
-//   const patientData = await res.json();
-//   console.log('PATIENTDATA', patientData)
-
-//   if (!patientData || typeof patientData !== 'object' || !patientData.data) {
-//     throw new Error('Invalid data structure received from API');
-//   }
-
-//     return { props: { patientData } };
-//   } catch (error) {
-//     console.error('Failed to fetch patient data:', error);
-//     return { 
-//       props: { 
-//         patientData: null, error: error.message 
-//       } 
-//     };
-//   }
-// }
 
 export default RecordId;

@@ -268,6 +268,8 @@ const TabAccount = () => {
     <Grid container spacing={6}>
       <Grid item xs={12}>
         <Card>
+          <CardHeader title='Account Settings' />
+
           <form>
             <CardContent sx={{ pb: theme => `${theme.spacing(10)}` }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
