@@ -3,17 +3,19 @@ import { useState, useEffect } from 'react'
 
 // ** MUI Imports
 import { Tab, Box, Grid, Typography, CircularProgress, styled, useMediaQuery} from '@mui/material'
-import { TabPanel, TabContext, MuiTab} from '@mui/lab/'
-import MuiTabList from '@mui/lab/TabList'
+import { TabPanel, TabContext, MuiTab} from '@mui/lab/';
+import MuiTabList from '@mui/lab/TabList';
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from 'src/@core/components/icon';
 
 // ** File Imports
-import TabAccount from 'src/views/pages/account-settings/TabAccount'
-import TabBilling from 'src/views/pages/account-settings/TabBilling'
-import TabProfile from 'src/views/pages/account-settings/TabProfile.js'
-import TabSecurity from 'src/views/pages/account-settings/TabSecurity'
+import TabAccount from 'src/views/pages/account-settings/TabAccount';
+import TabBilling from 'src/views/pages/account-settings/TabBilling';
+import TabProfile from 'src/views/pages/account-settings/TabProfile.js';
+import TabSecurity from 'src/views/pages/account-settings/TabSecurity';
+import TabMySerices from 'src/views/pages/account-settings/TabMyServices';
+
 // import TabConnections from 'src/views/pages/account-settings/TabConnections'
 // import TabNotifications from 'src/views/pages/account-settings/TabNotifications'
 
@@ -81,7 +83,9 @@ const AccountSettings = ({ tab, apiPricingPlanData }) => {
     account: <TabAccount />,
     security: <TabSecurity />,
     profile: <TabProfile />,
-    billing: <TabBilling apiPricingPlanData={apiPricingPlanData} />
+    billing: <TabBilling apiPricingPlanData={apiPricingPlanData} />,
+    myservices: <TabMySerices />,
+
     // connections: <TabConnections />,
     // notifications: <TabNotifications />,
   }
@@ -122,6 +126,15 @@ const AccountSettings = ({ tab, apiPricingPlanData }) => {
                     <Box sx={{ display: 'flex', alignItems: 'center', ...(!hideText && { '& svg': { mr: 2 } }) }}>
                       <Icon icon='mdi:account-outline' />
                       {!hideText && 'Profile'}
+                    </Box>
+                  }
+                />
+                <Tab
+                  value='myservices'
+                  label={
+                    <Box sx={{ display: 'flex', alignItems: 'center', ...(!hideText && { '& svg': { mr: 2 } }) }}>
+                      <Icon icon='mdi:toolbox-outline' />
+                      {!hideText && 'My Services'}
                     </Box>
                   }
                 />

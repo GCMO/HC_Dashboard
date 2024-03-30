@@ -18,7 +18,7 @@ const FooterContent = () => {
 
   return (
     <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
-      <Typography sx={{ mr: 2 }}>
+      {/* <Typography sx={{ mr: 2 }}>
         {`© ${new Date().getFullYear()}, Made with `}
         <Box component='span' sx={{ color: 'error.main' }}>
           ❤️
@@ -27,7 +27,7 @@ const FooterContent = () => {
         <LinkStyled target='_blank' href='https://mui.com/store/contributors/themeselection/'>
           ThemeSelection
         </LinkStyled>
-      </Typography>
+      </Typography> */}
       {hidden ? null : (
         <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', '& :not(:last-child)': { mr: 4 } }}>
           <LinkStyled target='_blank' href='https://mui.com/store/license/'>

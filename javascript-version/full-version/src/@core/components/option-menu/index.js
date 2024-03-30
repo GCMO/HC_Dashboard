@@ -1,9 +1,7 @@
 // ** THIS FILE IS FOR THE 3DOTS OPTION-MENU IN THE DATAGRID
 
-// ** React Imports
+// ** React/Next Imports
 import { useState } from 'react';
-
-// ** Next Import
 import Link from 'next/link';
 
 // ** MUI Imports

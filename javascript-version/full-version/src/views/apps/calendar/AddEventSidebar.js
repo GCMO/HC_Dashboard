@@ -1,3 +1,21 @@
+/**
+ * AddEventSidebar component for managing calendar events.
+ *
+ * @component
+ * @param {Object} props - The component props.
+ * @param {Object} props.store - The store object.
+ * @param {Function} props.dispatch - The dispatch function.
+ * @param {Function} props.addEvent - The function to add a new event.
+ * @param {Function} props.updateEvent - The function to update an existing event.
+ * @param {Function} props.deleteEvent - The function to delete an event.
+ * @param {number} props.drawerWidth - The width of the sidebar drawer.
+ * @param {Object} props.calendarApi - The calendar API object.
+ * @param {Function} props.handleSelectEvent - The function to handle event selection.
+ * @param {boolean} props.addEventSidebarOpen - Flag indicating if the add event sidebar is open.
+ * @param {Function} props.handleAddEventSidebarToggle - The function to toggle the add event sidebar.
+ * @returns {JSX.Element} The AddEventSidebar component.
+ */
+
 // ** React Imports
 import { useState, useEffect, forwardRef, useCallback, Fragment } from 'react'
 
@@ -26,12 +44,11 @@ const defaultState = {
   description: '',
   calendar: 'Business',
   alert: '1 day',
-  repeat: 'never',
+  event_repeat: "never",
   duration: '60min',
 }
 
 const AddEventSidebar = props => {
-  // ** Props
   const {
     store,
     dispatch,
@@ -76,6 +93,7 @@ const AddEventSidebar = props => {
         guests: values.guests && values.guests.length ? values.guests : undefined,
         description: values.description.length ? values.description : undefined,
         duration: values.duration ? values.duration : "60min",
+        event_repeat: values.event_repeat && values.event_repeat.length ? values.event_repeat : "never"
       }
     }
     if (store.selectedEvent === null || (store.selectedEvent !== null && !store.selectedEvent.title.length)) {
@@ -278,19 +296,21 @@ const AddEventSidebar = props => {
               value={values.url} onChange={e => setValues({ ...values, url: e.target.value })}
             /> */}
 
-            {/* <FormControl fullWidth sx={{ mb: 6 }}>
+            <FormControl fullWidth sx={{ mb: 6 }}>
               <InputLabel id='event-repeat'>Repeat</InputLabel>
-                <Select multiple label='Repeat' value={values.event_repeat} labelId='event-repeat' id='event-repeat-select'
+                <Select label='Repeat' value={values.event_repeat} labelId='event-repeat' id='event-repeat-select'
                 onChange={e => setValues({ ...values, event_repeat: e.target.value })}
                 >
                   <MenuItem value='never'>Never</MenuItem>
-                  <MenuItem value='every day'>Every Day</MenuItem>
-                  <MenuItem value='every week'>Every Week</MenuItem>
-                  <MenuItem value='every 2 weeks'>Every 2 Weeks</MenuItem>
-                  <MenuItem value='every month'>Every Month</MenuItem>
-                  <MenuItem value='every year'>Every Year</MenuItem>
+                  <MenuItem value='dayly'>Dayly</MenuItem>
+                  <MenuItem value='weekly'>Weekly</MenuItem>
+                  <MenuItem value='bi-weekly'>Bi-Weekly</MenuItem>
+                  <MenuItem value='monthly'>Monthly</MenuItem>
+                  <MenuItem value='bimonthly'>Bi-Monthly</MenuItem>
+                  <MenuItem value='quarterly'>Quaterly</MenuItem>
+                  <MenuItem value='every year'>Yearly</MenuItem>
                 </Select>
-            </FormControl> */}
+            </FormControl>
 
             <FormControl fullWidth sx={{ mb: 6 }}>
               <InputLabel id='event-duration'>Duration</InputLabel>

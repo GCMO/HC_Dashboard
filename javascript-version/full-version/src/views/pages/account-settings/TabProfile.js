@@ -4,8 +4,10 @@
 import { useState, Fragment } from 'react';
 import Cookies from 'js-cookie';
 import jwt_decode from 'jwt-decode';
+
 // ** MUI Imports
 import {Grid, Alert, Snackbar, Select, Button, MenuItem, TextField, InputLabel,  CardContent, CardHeader, FormControl, OutlinedInput} from '@mui/material';
+
 // ** Hooks
 import useFetch from 'src/hooks/useFetch';
 import { useSettings } from 'src/@core/hooks/useSettings';
@@ -30,7 +32,6 @@ const TabProfile = () => {
     howitworks: undefined,
     firsttreatment:undefined,
     languages: [], // try with undefined
-    price: undefined,
   });
    
    // **Snackbar Hooks
@@ -45,7 +46,7 @@ const TabProfile = () => {
 
   const languages = ['English', 'Swedish', 'Norwegian', 'Danish', 'Finnish', 'Dutch', 'Belgian', 'French', 'Spanish', 'Portuguese', 'Italian', 'German', 'Greek', 'Arabic', 'Russian', 'Chinese', ]; 
 
-  const jobTitle = ['Ayurvedic Doctor', 'Acupuncturist', 'TCM Doctor', 'Osteopath', 'Naprapath', 'Chiropractor', 'Rolfing Therapist', 'Cranio-Sacral Therapist', 'Homeopat', 'Kinesiologist', 'Reflexologist', 'Yoga Teacher', 'Meditation Teacher', 'Taichi Teacher', 'Qikung Teacher', 'Bach Flowers Therapist', 'Naturopath', 'Nutritionist', 'Iridologist', 'Vega Tester', 'Neurologist', 'Neurosurgeon', 'NLP Therapist', 'Tapping Therapist', 'Reiki Master', 'Tea Ceremony Guide', 'Crystal Healer','Sound Healer', 'Aromatherapist', 'Gong Bath Healer', 'Bio-hacker', 'Breathwork Guide', 'Astrologer', 'Tarot Reader', "M.D."
+  const jobTitle = ['Ayurvedic Doctor', 'Acupuncturist', 'TCM Doctor', 'Osteopath', 'Naprapath', 'Chiropractor', 'Rolfing Therapist', 'Cranio-Sacral Therapist', 'Homeopat', 'Kinesiologist', 'Reflexologist', 'Yoga Teacher', 'Meditation Teacher', 'Taichi Teacher', 'Qikung Teacher', 'Bach Flowers Therapist', 'Naturopath', 'Podiatrist', 'Nutritionist', 'Iridologist', 'Vega Tester', 'Neurologist', 'Neurosurgeon', 'NLP Therapist', 'Tapping Therapist', 'Reiki Master', 'Tea Ceremony Guide', 'Crystal Healer','Sound Healer', 'Aromatherapist', 'Gong Bath Healer', 'Bio-hacker', 'Breathwork Guide', 'Astrologer', 'Tarot Reader', "M.D."
 ]
 
   //FETCH DATA FROM STRAPI
@@ -81,7 +82,6 @@ const TabProfile = () => {
       howitworks: profileData.howitworks,
       firsttreatment: profileData.firsttreatment,
       languages: profileData.languages.join(', '),
-      price: profileData.price, 
     };
 
     console.log('1-profileDataUPDATES ', updatedProfileData);
@@ -120,7 +120,6 @@ const TabProfile = () => {
       howitworks: undefined,
       firsttreatment:undefined,
       languages: [],
-      price: 0,
     }
     setProfileData(resetData); 
   }
@@ -132,6 +131,7 @@ const TabProfile = () => {
       <CardHeader title='Profile Overview' sx={{marginLeft: -5, }} />
 
       <form>
+
         <Grid container spacing={7}>
 
           <Grid item xs={12} sm={6}>
@@ -156,25 +156,38 @@ const TabProfile = () => {
           </Grid>
 
           <Grid item xs={12} sm={6}>
-            <TextField required fullWidth label='Institute of Education' placeholder='Naprapathogskolan' 
-            value={profileData.eduInstitute || data.eduInstitute} onChange={(e) => setProfileData({ ...profileData, eduInstitute: e.target.value})}/>
+            <TextField required fullWidth 
+            label='Institute of Education' placeholder='Naprapathogskolan' 
+            value={profileData.eduInstitute || data.eduInstitute} 
+            onChange={(e) => setProfileData({ ...profileData, eduInstitute: e.target.value})}/>
           </Grid>
 
           <Grid item xs={12} sm={6}>
-            <TextField required fullWidth label='Certificate of Education' placeholder='Naprapat National Education Certification' value={profileData.eduTitle || data.eduTitle} onChange={(e) => setProfileData({ ...profileData, eduTitle: e.target.value})}/>
+            <TextField required fullWidth 
+            label='Certificate of Education' placeholder='Naprapat National Education Certification' 
+            value={profileData.eduTitle || data.eduTitle} 
+            onChange={(e) => setProfileData({ ...profileData, eduTitle: e.target.value})}/>
           </Grid>
 
           <Grid item xs={12} sm={6}>
-            <TextField  fullWidth label='Other Certifications' placeholder='Biodynamic Craniosacral Therapy (BCST), Kinesiology Taping Practitioner Certification' value={profileData.otherCert || data.otherCert}  onChange={(e) => setProfileData({ ...profileData, otherCert: e.target.value})} />
+            <TextField  fullWidth label='Other Certifications' 
+            placeholder='Biodynamic Craniosacral Therapy (BCST), Kinesiology Taping Practitioner Certification' 
+            value={profileData.otherCert || data.otherCert}  
+            onChange={(e) => setProfileData({ ...profileData, otherCert: e.target.value})} />
           </Grid>
 
           <Grid item xs={12} sm={6}>
-            <TextField  fullWidth multiline minRows={2} label='Specializations' placeholder='Use this space to clarify your specializations. Ei: Child birth, Migranes, Sport Inguries, etc.. Try to be concise and use a - (dash) in front of each of your specializations' value={profileData.specialization || data.specialization} onChange={(e) => setProfileData({ ...profileData, specialization: e.target.value})} />
+            <TextField  fullWidth multiline 
+            label='Specializations' placeholder='Use this space to clarify your specializations. Ei: Child birth, Migranes, Sport Inguries, etc.. Try to be concise and use a - (dash) in front of each of your specializations' 
+            value={profileData.specialization || data.specialization} 
+            onChange={(e) => setProfileData({ ...profileData, specialization: e.target.value})} />
           </Grid>
 
           <Grid item xs={12} sm={6}>
-            <TextField required fullWidth label='Years of Practice' placeholder='10 (please just write a number)' 
-            value={profileData.yoe || data.yoe} onChange={(e) => setProfileData({ ...profileData, yoe: e.target.value})}/> 
+            <TextField required fullWidth 
+            label='Years of Practice' placeholder='10 (please just write a number)' 
+            value={profileData.yoe || data.yoe} 
+            onChange={(e) => setProfileData({ ...profileData, yoe: e.target.value})}/> 
           </Grid>
 
           <Grid item xs={12} sx={{ marginTop: 4.8 }}>
@@ -185,20 +198,25 @@ const TabProfile = () => {
           </Grid>
 
           <Grid item xs={12}>
-            <TextField  fullWidth multiline minRows={2} label='Training' placeholder='Use this space to speak about your training, who was/were your mentior/s, for which companies you worked, How long you have been practicing. Try to be concise and professional in your writting.  Customers tend to appreciate details and wont spend much time reading. ' value={profileData.trainings || data.trainings} onChange={(e) => setProfileData({ ...profileData, trainings: e.target.value})} />
+            <TextField  fullWidth multiline minRows={2} 
+            label='Training' placeholder='Use this space to speak about your training, who was/were your mentior/s, for which companies you worked, How long you have been practicing. Try to be concise and professional in your writting.  Customers tend to appreciate details and wont spend much time reading. ' 
+            value={profileData.trainings || data.trainings} 
+            onChange={(e) => setProfileData({ ...profileData, trainings: e.target.value})} />
           </Grid>
 
 
           <Grid item xs={12}>
             <TextField fullWidth multiline label='This is how I work' minRows={2}
               placeholder='Describe how you regularly work. EX.: The treatment is tailored to your needs. The starting point is to get a deeper insight into patterns that have been created through life and that are creating unnecessary suffering for you today. This is the first step to being able to change destructive thought patterns, behaviors and feelings. Focusing on the present, I try to help you break repetitive negative behavioural patterns at the root of the trauma. Together we establish new routines and through the treatments we will remove the trauma.'
-              value={profileData.howitworks || data.howitworks} onChange={(e) => setProfileData({ ...profileData, howitworks: e.target.value})}/>
+              value={profileData.howitworks || data.howitworks} 
+              onChange={(e) => setProfileData({ ...profileData, howitworks: e.target.value})}/>
           </Grid>
 
           <Grid item xs={12}>
             <TextField required fullWidth multiline label='During the First Treatment' minRows={2}
               placeholder='Describe how you will approach the first treatment. EX.: During our first meeting I will ask you multiple questions about your diet, allergies, conditions, medications, daily schedule, habits and family circumstances. I will take your pulse, look at your iris and tongue. Then I will invite you to describe the issues you experience. Finally I will prescribe specific remedies and treatments related to your condition.' 
-              value={profileData.firsttreatment || data.firsttreatment} onChange={(e) => setProfileData({ ...profileData, firsttreatment: e.target.value})} />
+              value={profileData.firsttreatment || data.firsttreatment} 
+              onChange={(e) => setProfileData({ ...profileData, firsttreatment: e.target.value})} />
           </Grid>
 
           <Grid item xs={12} sm={6}>
@@ -226,12 +244,7 @@ const TabProfile = () => {
 
               </Select>
             </FormControl>
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <TextField  fullWidth label='Treatment Price in SEK' placeholder='800' 
-            value={profileData.price || data.price} onChange={(e) => setProfileData({ ...profileData, price: e.target.value})}/> 
-          </Grid>
+          </Grid> 
 
           <Grid item xs={12}>
             <Fragment>

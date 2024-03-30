@@ -8,6 +8,8 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import bootstrap5Plugin from '@fullcalendar/bootstrap5'
 import interactionPlugin from '@fullcalendar/interaction'
+import rrulePlugin from '@fullcalendar/rrule';
+
 
 // ** Third Party Style Import
 import 'bootstrap-icons/font/bootstrap-icons.css'
@@ -54,13 +56,15 @@ const Calendar = props => {
     }
   }, [calendarApi, setCalendarApi])
   if (store) {
+
     // ** calendarOptions(Props)
     const calendarOptions = {
       events: (() => {
         console.log("STOREDATA", store.events);
+
         return store.events.length ? store.events : [];
       })(),
-      plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin, bootstrap5Plugin],
+      plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin, bootstrap5Plugin, rrulePlugin],
       initialView: 'dayGridMonth',
       headerToolbar: {
         start: 'sidebarToggle, prev, next, title',
@@ -71,45 +75,36 @@ const Calendar = props => {
           titleFormat: { year: 'numeric', month: 'long', day: 'numeric' }
         }
       },
-      
-      /*
-            Enable dragging and resizing event
-            ? Docs: https://fullcalendar.io/docs/editable
-          */
+
+      /*    Enable dragging and resizing event
+            Docs: https://fullcalendar.io/docs/editable */
       editable: true,
 
-      /*
-            Enable resizing event from start
-            ? Docs: https://fullcalendar.io/docs/eventResizableFromStart
-          */
+      /*    Enable resizing event from start
+            Docs: https://fullcalendar.io/docs/eventResizableFromStart */
       eventResizableFromStart: true,
 
-      /*
-              Automatically scroll the scroll-containers during event drag-and-drop and date selecting
-              ? Docs: https://fullcalendar.io/docs/dragScroll
-            */
+      /*    Automatically scroll the scroll-containers during event drag-and-drop and date selecting
+            Docs: https://fullcalendar.io/docs/dragScroll */
       dragScroll: true,
 
-      /*
-              Max number of events within a given day
-              ? Docs: https://fullcalendar.io/docs/dayMaxEvents
-            */
+      /*    Max number of events within a given day
+            Docs: https://fullcalendar.io/docs/dayMaxEvents */
       dayMaxEvents: 48,
 
-      /*
-              Determines if day names and week names are clickable
-              ? Docs: https://fullcalendar.io/docs/navLinks
-            */
+      /*    Determines if day names and week names are clickable
+            Docs: https://fullcalendar.io/docs/navLinks */
       navLinks: true,
+
       eventClassNames({ event: calendarEvent }) {
         // @ts-ignore
         const colorName = calendarsColor[calendarEvent._def.extendedProps.calendar]
 
         return [
-          // Background Color
-          `bg-${colorName}`
+          `bg-${colorName}` // Background Color
         ]
       },
+
       eventClick({ event: clickedEvent }) {
         dispatch(handleSelectEvent(clickedEvent))
         handleAddEventSidebarToggle()
@@ -119,6 +114,7 @@ const Calendar = props => {
         // event.value = grabEventDataFromEventApi(clickedEvent)
         // isAddNewEventSidebarActive.value = true
       },
+
       customButtons: {
         sidebarToggle: {
           icon: 'bi bi-list',
@@ -138,19 +134,15 @@ const Calendar = props => {
         handleAddEventSidebarToggle()
       },
 
-      /*
-              Handle event drop (Also include dragged event)
-              ? Docs: https://fullcalendar.io/docs/eventDrop
-              ? We can use `eventDragStop` but it doesn't return updated event so we have to use `eventDrop` which returns updated event
+      /* Handle event drop (Also include dragged event) Docs: https://fullcalendar.io/docs/eventDrop
+         We can use `eventDragStop` but it doesn't return updated event so we have to use `eventDrop` which returns updated event
             */
       eventDrop({ event: droppedEvent }) {
         dispatch(updateEvent(droppedEvent))
       },
 
-      /*
-              Handle event resize
-              ? Docs: https://fullcalendar.io/docs/eventResize
-            */
+      /*  Handle event resize
+          Docs: https://fullcalendar.io/docs/eventResize  */
       eventResize({ event: resizedEvent }) {
         dispatch(updateEvent(resizedEvent))
       },

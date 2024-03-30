@@ -2,16 +2,7 @@
 import { useState } from 'react'
 
 // ** MUI Imports
-import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
-import Step from '@mui/material/Step'
-import Button from '@mui/material/Button'
-import Stepper from '@mui/material/Stepper'
-import StepLabel from '@mui/material/StepLabel'
-import CardHeader from '@mui/material/CardHeader'
-import Typography from '@mui/material/Typography'
-import CardContent from '@mui/material/CardContent'
-import StepContent from '@mui/material/StepContent'
+import {Box, Card, Step, Button, Stepper, StepLabel, CardHeader, Typography, CardContent, StepContent} from '@mui/material'
 
 // ** Third Party Imports
 import clsx from 'clsx'

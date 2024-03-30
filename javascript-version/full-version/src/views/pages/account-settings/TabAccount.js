@@ -1,3 +1,5 @@
+/* eslint-disable lines-around-comment */
+/* eslint-disable padding-line-between-statements */
 // ** React Imports
 import { useState, Fragment, forwardRef, ChangeEvent, SyntheticEvent } from 'react'
 
@@ -17,6 +19,7 @@ import { useSettings } from 'src/@core/hooks/useSettings'
 
 // ** Styled Components
 import DatePickerWrapper from 'src/views/components/react-datepicker'
+
 // import Close from 'mdi-material-ui/Close'
 
 // ** Icon Imports
@@ -80,6 +83,7 @@ const TabAccount = () => {
   // **Snackbar Hooks
   const { settings } = useSettings()
   const { skin } = settings
+
   const handleCloseSnackBtn = (event, reason) => {
     if (reason === 'clickaway') {
       return
@@ -87,12 +91,11 @@ const TabAccount = () => {
     setOpenSnackbar(false)
   }
   
-  const countries = ["SWEDEN", "NORWAY", "DENMARK", "FINLAND", "GERMANY", "FRANCE", "HOLLAND", "BELGIUM", "ITALY", "GREECE", "SPAIN", "PORTUGAL", "USA", "UK"]
-  
   
   // Data Fetching -- STRAPI decodes the JWT automatically using users/me (except for PUT and we still have to use ${id}). 
   // Media Fetching -- STRAPI has a separate collection for media so always ?populated=* the url 
   const jwtToken = Cookies.get('jwt');
+
   const { loading, error, data } = useFetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/users/me?populate=*`, {
     method: 'GET',
     headers: {
@@ -145,7 +148,7 @@ const TabAccount = () => {
         // Create a FormData object to send the file with all the metadata required
         const formData = new FormData();
         formData.append('files', selectedFile);
-        
+        // POST the image to the server
         fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/upload?populate=users/me`, {
           method: 'POST',
           headers: {
@@ -157,6 +160,7 @@ const TabAccount = () => {
             if (!response.ok) {
               throw new Error(`HTTP error! Status: ${response.status}`);
             }
+
             return response.json();
           })
 
@@ -182,6 +186,7 @@ const TabAccount = () => {
                   if (updateResponse.status !== 200) {
                     throw new Error(`HTTP error! Status: ${updateResponse.status}`);
                   }
+
                   return updateResponse.json();
                 })
 
@@ -273,7 +278,7 @@ const TabAccount = () => {
           <form>
             <CardContent sx={{ pb: theme => `${theme.spacing(10)}` }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <ImgStyled src={`${process.env.NEXT_PUBLIC_STRAPI_BASE_URL}${userData.profilePic?.url}` || imgSrc }  alt="Profile Pic"/> 
+              <ImgStyled src={`${process.env.NEXT_PUBLIC_STRAPI_BASE_URL}${data?.profilePic?.url}` || imgSrc }  alt="Profile Pic"/> 
                 <div>
                   <ButtonStyled component='label' variant='contained' htmlFor='account-settings-upload-image'>
                     Upload New Photo
@@ -303,6 +308,7 @@ const TabAccount = () => {
                   <TextField required fullWidth label='Full Name'
                     placeholder='John Doe'
                     value={`${data.firstname} ${data.lastname}`} 
+
                     // onChange={e => saveChangesBtn('firstName', e.target.value)}
                   />
                 </Grid>
@@ -331,6 +337,7 @@ const TabAccount = () => {
                 <Grid item xs={12} sm={6}>
                   <TextField fullWidth type='email' label='Email'
                     placeholder='john.doe@example.com' value={data.email}
+
                     // onChange={e => saveChangesBtn('email', e.target.value)}
                   />
                 </Grid>
@@ -358,7 +365,7 @@ const TabAccount = () => {
                 </Grid>
 
                 <Grid item xs={12} sm={6}>
-                  <TextField required fullWidth label='Location' placeholder='The address where you deliver treatments' 
+                  <TextField required fullWidth label='Address' placeholder='The address where you deliver treatments' 
                   value={userData.location || data.location } 
                   onChange={(e) => setUserData({ ...userData, location: e.target.value })}/>
                 </Grid>

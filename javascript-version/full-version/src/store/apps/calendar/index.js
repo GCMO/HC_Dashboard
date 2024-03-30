@@ -1,6 +1,16 @@
+/**
+ * @file FILEPATH: /Users/Pro2015/Downloads/materio-mui-react-nextjs-admin-template-standard-v2.2.0/javascript-version/full-version/src/store/apps/calendar/index.js
+ * @brief REDUX TOOLKIT to manage the state of the calendar. Mostly CRUD actions.
+ *
+ * @description
+ * This file contains the Redux implementation for managing the state of the calendar application. It includes actions for CRUD operations on calendar events, data fetching and updating, UI interactions, and state management.
+ *
+ * @summary
+ * The file exports action creators and a reducer used in the Redux store.
+ */
 // InBrief: REDUX TOOLKIT to manage the state of the calendar. Mostly CRUD actions.
 
-// State Management: Maintaining  state for the calendar application including the events, the selected event, and the selected calendars.
+// State Management: Maintaining state for the calendar application including the events, the selected event, and the selected calendars.
 // Data Fetching and Updating: Defining async actions (fetchEvents, addEvent, updateEvent, deleteEvent) to interact with backend "CRUDing" calendar events.
 // UI Interactions: Handling user actions: selecting a specific event (handleSelectEvent), updating the selected calendars (handleCalendarsUpdate), and toggling the display of all calendars (handleAllCalendars).
 // Updating the State based on Actions: Updating the state in response to actions, both if triggered by user actions or completed async operations.
@@ -31,6 +41,7 @@ console.log('JWT', jwtToken)
     'Content-Type': 'application/json',
     }})
   console.log("EVENTdata", response.data.calendars)
+
   // Map the fetched data from Strapi TO THE COMPONENT Structure
   const events = response.data.calendars.map(event => ({
     id: event.id,
@@ -48,13 +59,14 @@ console.log('JWT', jwtToken)
       duration: event.event_duration,
     }
   }));
+
   return events; // Return the mapped events
 });
 
 // ** ADD EVENT - POST
-// decode id from JWT   
 export const addEvent = createAsyncThunk('appCalendar/addEvent', async (event, { dispatch }) => {
-  const idDecoder = jwt_decode(jwtToken);
+  const idDecoder = jwt_decode(jwtToken);   // decode id from JWT   
+
   console.log('USERID', idDecoder.id);
   const UserId = idDecoder.id;
 
@@ -69,7 +81,7 @@ export const addEvent = createAsyncThunk('appCalendar/addEvent', async (event, {
     event_description: event.extendedProps.description,
     event_location: event.extendedProps.location,
     event_duration: event.extendedProps.duration,
-    users_permissions_user: UserId
+    user: UserId
   };
 
   const response = await axios.post(`${strapiUrl}/calendars`, {
@@ -81,16 +93,16 @@ export const addEvent = createAsyncThunk('appCalendar/addEvent', async (event, {
     }},
   )
   await dispatch(fetchEvents(['Personal', 'Business', 'Family', 'Holiday', 'Event']))
-
-  console.log("POSTdata", response.data.calendars)
-
+  
   return response.data.event
+  console.log("POSTdata", response.data.event)
 })
 
 // ** UPDATE EVENT
 export const updateEvent = createAsyncThunk('appCalendar/updateEvent', async (event, { dispatch }) => {
   const idDecoder = jwt_decode(jwtToken);
   const userId = idDecoder.id;
+
   // console.log('USERID', userId);
   const eventId = event.id
   console.log("eventUPDATEid", event.id);
@@ -107,6 +119,7 @@ export const updateEvent = createAsyncThunk('appCalendar/updateEvent', async (ev
     event_location: event.extendedProps.location || event.event_location,
     event_duration: event.extendedProps.duration || event.event_duration,
     users_permissions_user: userId
+
     // users_permissions_user: event.extendedProps.users_permissions_user
   }
 
@@ -130,6 +143,7 @@ export const updateEvent = createAsyncThunk('appCalendar/updateEvent', async (ev
 export const deleteEvent = createAsyncThunk('appCalendar/deleteEvent', async (id, { dispatch }) => {
 
   console.log("idDelete", identifier)
+
   const response = await axios.delete(`${strapiUrl}/calendars/${id}`, { 
     data: {id : event.id},
     Method: 'DELETE',
@@ -186,3 +200,6 @@ export const appCalendarSlice = createSlice({
 export const { handleSelectEvent, handleCalendarsUpdate, handleAllCalendars } = appCalendarSlice.actions
 
 export default appCalendarSlice.reducer
+
+// write documentation for this file 
+
