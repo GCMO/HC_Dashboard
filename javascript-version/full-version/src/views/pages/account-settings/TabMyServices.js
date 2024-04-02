@@ -1,14 +1,13 @@
 /* eslint-disable lines-around-comment */
 /* eslint-disable padding-line-between-statements */
 // ** React Imports
-import { useState, Fragment, forwardRef, ChangeEvent, SyntheticEvent } from 'react'
+import { useState, useEffect, Fragment } from 'react'
 
 // ** MUI Imports
 import { Alert, Snackbar, Box, Button, Grid, Card, Select, Accordion, AccordionSummary, AccordionDetails, Dialog, DialogContent, DialogActions, Checkbox, MenuItem, TextField, Typography, InputLabel, CardHeader, FormControl, FormLabel, RadioGroup, Radio, CardContent, FormHelperText, InputAdornment, FormControlLabel, styled } from '@mui/material';
 
 // ** Third Party Imports
 import { useForm, Controller } from 'react-hook-form'
-import DatePicker from 'react-datepicker'
 import Cookies from 'js-cookie';
 import jwt_decode from 'jwt-decode';
 
@@ -47,18 +46,17 @@ const TabMyServices = () => {
 
   // ** State
   const [open, setOpen] = useState(false)
-  const [imgSrc, setImgSrc] = useState('/images/avatars/1.png')
-  const [userInput, setUserInput] = useState('yes')
   const [inputValue, setInputValue] = useState('')
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [servicesList, setServicesList] = useState([]); // services rendered at the bottom of the page.
   const [serviceData, setServiceData] = useState({
-    service_title: undefined,
-    service_description: undefined,
-    service_duration: undefined,
-    service_price: undefined,
-    service_currency: '' || undefined,
-    service_partipants:undefined,
-    service_modality: undefined,
+    service_title: "",
+    service_description: "",
+    service_duration: "",
+    service_price: "",
+    service_currency: "",
+    service_participants: "" ,
+    service_modality: "",
   })
 
   // ** Hooks
@@ -76,9 +74,19 @@ const TabMyServices = () => {
       Authorization: `Bearer ${jwtToken}`,
     },
   });
-  if (loading) return <p className="mx-15 text-3xl">LOADING...</p>
+
+  // update serviceList state with data just fetched, any changes will be displayed pronto
+  useEffect(() => { 
+    if (data && data.services) {
+      setServicesList(data.services);
+    }
+  }, [data]);
+
+  if (loading || !servicesList.length) return <p className="mx-15 text-3xl">LOADING...</p>
   if (error) return <p className="ml-20 text-3xl">Hollllly 🐄... Something went Wrong. Try reloading the page </p>
-  
+  if (!servicesList.length) return <p className="mx-15 text-3xl">No services found.</p>;
+
+
   console.log("USER", data);
   console.log("JWT", jwtToken);
   
@@ -87,11 +95,6 @@ const TabMyServices = () => {
   console.log("ID", idDecoder);
   const id = idDecoder.id;
 
-
-  const handleConfirmation = value => {
-    handleClose()
-    setUserInput(value)
-  }
 
   const handleCloseSnackBtn = (event, reason) => {
     if (reason === 'clickaway') {
@@ -104,41 +107,77 @@ const TabMyServices = () => {
     setInputValue('')
   }
   
+  // CREATE SERVICE
   const saveChangesBtn = async () => {
     try {
-      const updatedUserService = {
-        service_title: serviceData.service_title,
-        service_description: serviceData.service_description,
-        service_duration: serviceData.service_duration,
-        service_price: serviceData.service_price,
-        service_currency: serviceData.service_currency,
-        service_participants: serviceData.service_participants,
-        service_modality: serviceData.service_modality,
-        user: id,
+      const updatedServiceData = {
+        data:{
+          service_title: serviceData.service_title,
+          service_description: serviceData.service_description,
+          service_duration: serviceData.service_duration,
+          service_price: serviceData.service_price,
+          service_currency: serviceData.service_currency,
+          service_participants: serviceData.service_participants,
+          service_modality: serviceData.service_modality,
+          user: id,
+        }
       };
-  
-      console.log('1- Changes saved successfully', updatedUserService);
-  
-      const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/services/${id}`, {
-        method: 'PUT',
+    
+      const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/services`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${jwtToken}`,
           },
-          body: JSON.stringify(updatedUserService),
+          body: JSON.stringify(updatedServiceData),
         });
+        console.log('RESPONSE', response)
   
         if (response.ok) {
-          console.log('2- Changes saved successfully', updatedUserService);
+          const newService = await response.json();
+          console.log('Changes saved successfully', newService);
+          // Update the state to reflect the new service just created
+          setServicesList(prevServices => [...prevServices, newService.data]); 
           setOpenSnackbar(true)
         } else {
           console.log('Failed to save changes');
+          setOpenSnackbar(false)
       };
         console.log('No changes to save.');
     } catch (error) {
       console.error('Error saving changes:', error);
     }
+
+    setInputValue('');
   };
+
+  // DELETE SERVICE
+
+  const handleDeleteService = async (id) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/services/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+        },
+      });
+      console.log('RESPONSE', response)
+      if (response.ok) {
+        console.log('Service deleted successfully');
+          // Update state to reflect deletion
+        setServicesList(prevServices => prevServices.filter(service => service.id !== id));
+
+      setOpenSnackbar(true)
+
+      } else {
+        console.log('Failed to delete service');
+        setOpenSnackbar(false)
+      }
+    } catch (error) {
+      console.error('Error deleting service:', error);
+    }
+  };
+
 
   // ADD VALIDATORS TO THE FORM, copy from login form!!!!
 
@@ -152,8 +191,9 @@ const TabMyServices = () => {
           <CardContent>
             <Box sx={{ background:'#4579cc', borderRadius:'7px', padding:'15px', mb:"35px",  }} >
               <Typography sx={{ ml:"3px", fontStyle:"italic", }} > 
-                In this section please describe precisely the services you will provide. We recommend you keep a maximum of 5 services to make it easier for your clients to choose from. We have noticed that therapists offering more services, receive less bookings.  <br/>
-                Each services will be later selectable in your private Calendar of appointments as ready-made options and visible to customers in your profile section.
+                In this section please describe precisely the services you will provide. Each service will be later selectable in your private Calendar of appointments as ready-made options and visible to customers in your profile section. <br/><br/>
+                - We have noticed that therapists offering more services, receive less bookings. So, we recommend you publish a maximum of 5 services to make it easier for your customers to choose from.   
+                
               </Typography>
             </Box>
 
@@ -181,10 +221,9 @@ const TabMyServices = () => {
                     <Select
                       label='Currency'
                       renderValue={(selected) => selected}
-                      value = { serviceData.service_currency|| data.services.service_currency }
+                      value = { serviceData.service_currency }
                       onChange = {(e) => { 
-                        const selectedCurrency = e.target.value;
-                        setServiceData((prevUserService) => ({ ...prevUserService, currency: selectedCurrency, }));
+                        setServiceData((prevUserService) => ({ ...prevUserService, service_currency: e.target.value }));
                       }}
                     >
                       <MenuItem value='SEK'>SEK</MenuItem>
@@ -201,7 +240,7 @@ const TabMyServices = () => {
                 <Grid item xs={12} sm={6}>
                   <TextField fullWidth required 
                     label='Price' placeholder='only numbers, please no dots or commas'
-                    value={serviceData.service_price || data.services.service_price} 
+                    value={serviceData.service_price || " "} 
                     onChange={(e) => setServiceData({ ...serviceData, service_price: e.target.value })} 
                   />
                 </Grid>
@@ -212,19 +251,18 @@ const TabMyServices = () => {
                     <Select
                       label='Duration'
                       renderValue={(selected) => selected}
-                      value = { serviceData.service_duration || data.services.service_duration }
+                      value = { serviceData.service_duration }
                       onChange = {(e) => { 
-                        const selectedDuration = e.target.value;
-                        setServiceData((prevUserService) => ({ ...prevUserService, duration: selectedDuration }));
+                        setServiceData((prevUserService) => ({ ...prevUserService, service_duration: e.target.value }));
                       }}
                     >
-                      <MenuItem value='30'>30 min</MenuItem>
-                      <MenuItem value='45'>45 min</MenuItem>
-                      <MenuItem value='60'>60 min</MenuItem>
-                      <MenuItem value='90'>90 min</MenuItem>
-                      <MenuItem value='120'>120 min</MenuItem>
-                      <MenuItem value='150'>150 min</MenuItem>
-                      <MenuItem value='180'>180 min</MenuItem>
+                      <MenuItem value='min:30'>min:30</MenuItem>
+                      <MenuItem value='min:45'>min:45</MenuItem>
+                      <MenuItem value='min:60'>min:60</MenuItem>
+                      <MenuItem value='min:90'>min:90</MenuItem>
+                      <MenuItem value='min:120'>min:120</MenuItem>
+                      <MenuItem value='min:150'>min:150</MenuItem>
+                      <MenuItem value='min:180'>min:180</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -233,13 +271,12 @@ const TabMyServices = () => {
                   <FormControl>
                     <FormLabel required sx={{ fontSize: '0.875rem' }}>Participants</FormLabel>
                     <RadioGroup row aria-label='participants'
-                    value={serviceData.service_participants || data.services.service_participants}  
-                    onChange={(e) => setServiceData({ ...serviceData, service_participants: e.target.value })}
-                    
+                      value={serviceData.service_participants}  
+                      onChange={(e) => { setServiceData((prevUserService) => ({ ...prevUserService, service_participants: e.target.value })); }}
                     >
-                      <FormControlLabel value='private' label='Private' control={<Radio />} />
-                      <FormControlLabel value='couple' label='Couple' control={<Radio />} />
-                      <FormControlLabel value='group' label='Group' control={<Radio />} />
+                      <FormControlLabel value='Private' label='Private' control={<Radio />} />
+                      <FormControlLabel value='Couple' label='Couple' control={<Radio />} />
+                      <FormControlLabel value='Group' label='Group' control={<Radio />} />
                     </RadioGroup>
                   </FormControl>
                 </Grid>
@@ -248,11 +285,11 @@ const TabMyServices = () => {
                   <FormControl>
                     <FormLabel required sx={{ fontSize: '0.875rem' }}>Modality</FormLabel>
                     <RadioGroup row aria-label='modality'
-                    value={serviceData.service_modality || data.services.service_modality}  
-                    onChange={(e) => setServiceData({ ...serviceData, service_modality: e.target.value })}
+                    value={serviceData.service_modality}  
+                    onChange={(e) => { setServiceData((prevUserService) => ({ ...prevUserService, service_modality: e.target.value })); }}
                     >
-                      <FormControlLabel value='online' label='Online' control={<Radio />} />
-                      <FormControlLabel value='inperson' label='In Person' control={<Radio />} />
+                      <FormControlLabel value='Online' label='Online' control={<Radio />} />
+                      <FormControlLabel value='In Person' label='In Person' control={<Radio />} />
                     </RadioGroup>
                   </FormControl>
                 </Grid>
@@ -287,18 +324,19 @@ const TabMyServices = () => {
             <Grid item xs={12}>
               <Box sx={{ background:'#4579cc', borderRadius:'7px', padding:'15px', marginBottom:"5px",  }} >
                 <Typography sx={{ marginLeft:"15px", fontStyle:"italic",  }} > 
-                  All of your services are displayed below. You can choose to delete or hide them at any time. 
+                  All of your services are displayed below. You can choose to delete them at any time. 
                 </Typography>
               </Box>
             </Grid>
 
             <Grid item xs={12}>
-              { data.services.map((service) => (
-                <Box key={service} sx={{ display:'flex', flexDirection:'row', alignItems: 'center', background:'lightgrey', borderRadius:'7px', padding:'15px', mb:"5px",  }} >
-                  <Typography sx={{ background:'lightsteelblue', px:'10px', py:'8px', borderRadius:'5px', mx:"15px", fontWeight:'800', color:'black', boxShadow:'0 2px 4px rgba(0, 0, 0, 0.2)' }} > 
+              { servicesList.map((service) => (
+                <Box key={service.id} sx={{ display:'flex', flexDirection:'row', alignItems: 'center', justifyContent:'space-between', background:'lightgrey', borderRadius:'7px', padding:'15px', mb:"5px",  }} >
+                  <Typography sx={{ background:'lightsteelblue', px:'10px', py:'7px', borderRadius:'5px', mx:"15px", fontWeight:'800', color:'black', boxShadow:'0 2px 4px rgba(0, 0, 0, 0.2)' }} > 
                     {`${service.service_title} - ${service.service_currency}${service.service_price} - ${service.service_duration} - ${service.service_participants} - ${service.service_modality}`}
                   </Typography>
-                  <Button variant='contained' sx={{mx:'15px',}} >Delete</Button>
+                  <Button  sx={{px:'10px', py:'7px', color:'white', borderRadius:'5px', backgroundColor:'#cf5757', boxShadow:'0 2px 4px rgba(0, 0, 0, 0.3)'}}
+                    onClick={ ()=>handleDeleteService(service.id) } >Delete</Button>
                   {/* <ButtonStyled variant='outlined'>Hide</ButtonStyled> */}
                 </Box>
               ))}
