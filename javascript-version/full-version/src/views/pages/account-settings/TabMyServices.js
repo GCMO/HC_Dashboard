@@ -107,18 +107,19 @@ const TabMyServices = () => {
   const saveChangesBtn = async () => {
     try {
       const updatedUserService = {
-        title: serviceData.service_title,
-        service: serviceData.service_description,
-        duration: serviceData.service_duration,
-        price: serviceData.service_price,
-        currency: serviceData.service_currency,
-        participants: serviceData.service_participants,
-        modality: serviceData.service_modality,
+        service_title: serviceData.service_title,
+        service_description: serviceData.service_description,
+        service_duration: serviceData.service_duration,
+        service_price: serviceData.service_price,
+        service_currency: serviceData.service_currency,
+        service_participants: serviceData.service_participants,
+        service_modality: serviceData.service_modality,
+        user: id,
       };
   
       console.log('1- Changes saved successfully', updatedUserService);
   
-      const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/users/${id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/services/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -158,11 +159,10 @@ const TabMyServices = () => {
 
               <Grid container spacing={5}>
                 <Grid item xs={12} sm={12}>
-                  <TextField required fullWidth capital label='Service Title'
+                  <TextField required fullWidth label='Service Title'
                     placeholder='Acupuncture Appointment'
                     value={serviceData.service_title || data.services.service_title} 
-                    onChange={(e) => setServiceData({ ...serviceData, service_title: e.target.value}) }
-
+                    onChange={(e) => setServiceData({ ...serviceData, service_title: e.target.value.toUpperCase()}) }
                   />
                 </Grid>
 

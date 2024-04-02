@@ -44,11 +44,6 @@ const TabProfile = () => {
      setOpenSnackbar(false)
    }
 
-  const languages = ['English', 'Swedish', 'Norwegian', 'Danish', 'Finnish', 'Dutch', 'Belgian', 'French', 'Spanish', 'Portuguese', 'Italian', 'German', 'Greek', 'Arabic', 'Russian', 'Chinese', ]; 
-
-  const jobTitle = ['Ayurvedic Doctor', 'Acupuncturist', 'TCM Doctor', 'Osteopath', 'Naprapath', 'Chiropractor', 'Rolfing Therapist', 'Cranio-Sacral Therapist', 'Homeopat', 'Kinesiologist', 'Reflexologist', 'Yoga Teacher', 'Meditation Teacher', 'Taichi Teacher', 'Qikung Teacher', 'Bach Flowers Therapist', 'Naturopath', 'Podiatrist', 'Nutritionist', 'Iridologist', 'Vega Tester', 'Neurologist', 'Neurosurgeon', 'NLP Therapist', 'Tapping Therapist', 'Reiki Master', 'Tea Ceremony Guide', 'Crystal Healer','Sound Healer', 'Aromatherapist', 'Gong Bath Healer', 'Bio-hacker', 'Breathwork Guide', 'Astrologer', 'Tarot Reader', "M.D."
-]
-
   //FETCH DATA FROM STRAPI
   const { loading, error, data } = useFetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/users/me?populate=*`, {
     method: 'GET',
