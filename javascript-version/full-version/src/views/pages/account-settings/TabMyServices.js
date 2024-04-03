@@ -4,10 +4,9 @@
 import { useState, useEffect, Fragment } from 'react'
 
 // ** MUI Imports
-import { Alert, Snackbar, Box, Button, Grid, Card, Select, Accordion, AccordionSummary, AccordionDetails, Dialog, DialogContent, DialogActions, Checkbox, MenuItem, TextField, Typography, InputLabel, CardHeader, FormControl, FormLabel, RadioGroup, Radio, CardContent, FormHelperText, InputAdornment, FormControlLabel, styled } from '@mui/material';
+import { Alert, Snackbar, Box, Button, Grid, Card, Select, Checkbox, MenuItem, TextField, Typography, InputLabel, CardHeader, FormControl, FormLabel, RadioGroup, Radio, CardContent, FormControlLabel, styled } from '@mui/material';
 
 // ** Third Party Imports
-import { useForm, Controller } from 'react-hook-form'
 import Cookies from 'js-cookie';
 import jwt_decode from 'jwt-decode';
 
@@ -15,13 +14,7 @@ import jwt_decode from 'jwt-decode';
 import useFetch from 'src/hooks/useFetch'
 import { useSettings } from 'src/@core/hooks/useSettings'
 
-
-// import Close from 'mdi-material-ui/Close'
-
-// ** Icon Imports
-import Icon from 'src/@core/components/icon'
-
-
+// ** Styles
 const ButtonStyled = styled(Button)(({ theme }) => ({
   [theme.breakpoints.down('sm')]: {
     width: '100%',
@@ -43,9 +36,13 @@ const ResetButtonStyled = styled(Button)(({ theme }) => ({
 const TabMyServices = () => {
   
   const jwtToken = Cookies.get('jwt');
+  // decode the User Id from JWT (we have to use id for every PUT for now, they may update STRAPI later)
+  const idDecoder = jwt_decode(jwtToken || undefined);
+  console.log("ID", idDecoder);
+  const id = idDecoder.id;
+
 
   // ** State
-  const [open, setOpen] = useState(false)
   const [inputValue, setInputValue] = useState('')
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [servicesList, setServicesList] = useState([]); // services rendered at the bottom of the page.
@@ -58,15 +55,22 @@ const TabMyServices = () => {
     service_participants: "" ,
     service_modality: "",
   })
-
-  // ** Hooks
-  const handleClose = () => setOpen(false)
-  const onSubmit = () => setOpen(true)
   
   // **Snackbar Hooks
   const { settings } = useSettings()
   const { skin } = settings  
+  
+  const handleCloseSnackBtn = (event, reason) => {
+    if (reason === 'clickaway') {
+      return
+    }
+    setOpenSnackbar(false)
+  }
 
+  const handleInputReset = () => {
+    setInputValue('')
+  }
+  
   // FETCH DATA
   const { loading, error, data } = useFetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/users/me?populate=*`, {
     method: 'GET',
@@ -78,34 +82,18 @@ const TabMyServices = () => {
   // update serviceList state with data just fetched, any changes will be displayed pronto
   useEffect(() => { 
     if (data && data.services) {
+      console.log("Fetched services:", data.services);
       setServicesList(data.services);
     }
   }, [data]);
 
-  if (loading || !servicesList.length) return <p className="mx-15 text-3xl">LOADING...</p>
+  if (loading) return <p className="mx-15 text-3xl">LOADING...</p>
   if (error) return <p className="ml-20 text-3xl">Hollllly 🐄... Something went Wrong. Try reloading the page </p>
   if (!servicesList.length) return <p className="mx-15 text-3xl">No services found.</p>;
 
-
   console.log("USER", data);
   console.log("JWT", jwtToken);
-  
-  // decode the User Id from JWT (we have to use id for every PUT for now, they may update STRAPI later)
-  const idDecoder = jwt_decode(jwtToken || undefined);
-  console.log("ID", idDecoder);
-  const id = idDecoder.id;
 
-
-  const handleCloseSnackBtn = (event, reason) => {
-    if (reason === 'clickaway') {
-      return
-    }
-    setOpenSnackbar(false)
-  }
-
-  const handleInputReset = () => {
-    setInputValue('')
-  }
   
   // CREATE SERVICE
   const saveChangesBtn = async () => {
@@ -137,18 +125,18 @@ const TabMyServices = () => {
           const newService = await response.json();
           console.log('Changes saved successfully', newService);
           // Update the state to reflect the new service just created
-          setServicesList(prevServices => [...prevServices, newService.data]); 
+          setServicesList(prevServices => [...prevServices, newService.data.attributes]); 
           setOpenSnackbar(true)
         } else {
           console.log('Failed to save changes');
           setOpenSnackbar(false)
       };
-        console.log('No changes to save.');
+        // console.log('No changes to save.');
     } catch (error) {
       console.error('Error saving changes:', error);
     }
 
-    setInputValue('');
+    handleInputReset();
   };
 
   // DELETE SERVICE
@@ -324,7 +312,7 @@ const TabMyServices = () => {
             <Grid item xs={12}>
               <Box sx={{ background:'#4579cc', borderRadius:'7px', padding:'15px', marginBottom:"5px",  }} >
                 <Typography sx={{ marginLeft:"15px", fontStyle:"italic",  }} > 
-                  All of your services are displayed below. You can choose to delete them at any time. 
+                  All of your services are displayed below and on you Profile page. You can choose to delete them at any time. 
                 </Typography>
               </Box>
             </Grid>
@@ -333,7 +321,7 @@ const TabMyServices = () => {
               { servicesList.map((service) => (
                 <Box key={service.id} sx={{ display:'flex', flexDirection:'row', alignItems: 'center', justifyContent:'space-between', background:'lightgrey', borderRadius:'7px', padding:'15px', mb:"5px",  }} >
                   <Typography sx={{ background:'lightsteelblue', px:'10px', py:'7px', borderRadius:'5px', mx:"15px", fontWeight:'800', color:'black', boxShadow:'0 2px 4px rgba(0, 0, 0, 0.2)' }} > 
-                    {`${service.service_title} - ${service.service_currency}${service.service_price} - ${service.service_duration} - ${service.service_participants} - ${service.service_modality}`}
+                    {`${service.service_title} - ${service.service_currency} ${service.service_price} - ${service.service_duration} - ${service.service_participants} - ${service.service_modality}`}
                   </Typography>
                   <Button  sx={{px:'10px', py:'7px', color:'white', borderRadius:'5px', backgroundColor:'#cf5757', boxShadow:'0 2px 4px rgba(0, 0, 0, 0.3)'}}
                     onClick={ ()=>handleDeleteService(service.id) } >Delete</Button>
