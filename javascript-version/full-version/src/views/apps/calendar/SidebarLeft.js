@@ -52,25 +52,10 @@ const SidebarLeft = props => {
           disableScrollLock: true,
           keepMounted: true // Better open performance on mobile.
         }}
-        sx={{
-          zIndex: 3,
-          display: 'block',
-          position: mdAbove ? 'static' : 'absolute',
-          '& .MuiDrawer-paper': {
-            borderRadius: 1,
-            boxShadow: 'none',
-            width: leftSidebarWidth,
-            borderTopRightRadius: 0,
-            alignItems: 'flex-start',
-            borderBottomRightRadius: 0,
-            p: theme => theme.spacing(5),
-            zIndex: mdAbove ? 2 : 'drawer',
-            position: mdAbove ? 'static' : 'absolute'
-          },
-          '& .MuiBackdrop-root': {
-            borderRadius: 1,
-            position: 'absolute'
-          }
+        sx={{  zIndex: 3, display: 'block', position: mdAbove ? 'static' : 'absolute',
+          '& .MuiDrawer-paper': { borderRadius: 1, boxShadow: 'none', width: leftSidebarWidth, borderTopRightRadius: 0, alignItems: 'flex-start', borderBottomRightRadius: 0, 
+          p: theme => theme.spacing(5), zIndex: mdAbove ? 2 : 'drawer', position: mdAbove ? 'static' : 'absolute' },
+          '& .MuiBackdrop-root': { borderRadius: 1, position: 'absolute' }
         }}
       >
         <Button fullWidth variant='contained' onClick={handleSidebarToggleSidebar}>

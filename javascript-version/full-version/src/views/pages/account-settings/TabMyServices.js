@@ -320,8 +320,10 @@ const TabMyServices = () => {
             <Grid item xs={12}>
               { servicesList.map((service) => (
                 <Box key={service.id} sx={{ display:'flex', flexDirection:'row', alignItems: 'center', justifyContent:'space-between', background:'lightgrey', borderRadius:'7px', padding:'15px', mb:"5px",  }} >
-                  <Typography sx={{ background:'lightsteelblue', px:'10px', py:'7px', borderRadius:'5px', mx:"15px", fontWeight:'800', color:'black', boxShadow:'0 2px 4px rgba(0, 0, 0, 0.2)' }} > 
-                    {`${service.service_title} - ${service.service_currency} ${service.service_price} - ${service.service_duration} - ${service.service_participants} - ${service.service_modality}`}
+                  <Typography sx={{ background:'lightsteelblue', px:'10px', py:'7px', borderRadius:'5px', mx:"15px", color:'black', boxShadow:'0 2px 4px rgba(0, 0, 0, 0.2)' }} > 
+                    <b className='text-black-800'>{service.service_title} </b>  
+                    - {service.service_currency} {service.service_price} - {service.service_duration} 
+                    - {service.service_participants} - {service.service_modality}
                   </Typography>
                   <Button  sx={{px:'10px', py:'7px', color:'white', borderRadius:'5px', backgroundColor:'#cf5757', boxShadow:'0 2px 4px rgba(0, 0, 0, 0.3)'}}
                     onClick={ ()=>handleDeleteService(service.id) } >Delete</Button>

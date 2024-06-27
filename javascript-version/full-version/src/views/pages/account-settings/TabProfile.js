@@ -214,7 +214,7 @@ const TabProfile = () => {
 
           <Grid item xs={12}>
             <TextField required fullWidth multiline label='During the First Treatment' minRows={2}
-              placeholder='Describe how you will approach the first treatment. EX.: During our first meeting I will ask you multiple questions about your diet, allergies, conditions, medications, daily schedule, habits and family circumstances. I will take your pulse, look at your iris and tongue. Then I will invite you to describe the issues you experience. Finally I will prescribe specific remedies and treatments related to your condition.' 
+              placeholder='Describe how you will approach the first treatment. EX.: During our first appointment, I will ask you multiple questions about your diet, allergies, conditions, medications, daily schedule, habits and family circumstances. I will take your pulse, look at your iris and tongue. Then I will invite you to describe the issues you experience. Finally I will prescribe specific remedies and treatments related to your condition.' 
               value={profileData.firsttreatment || data.firsttreatment} 
               onChange={(e) => setProfileData({ ...profileData, firsttreatment: e.target.value})} />
           </Grid>
