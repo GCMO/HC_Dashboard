@@ -19,7 +19,8 @@ import Select from '@mui/material/Select'
 import CustomChip from 'src/@core/components/mui/chip'
 
 // ** Third Party Imports
-import format from 'date-fns/format'
+import format from 'date-fns/format/index.js';
+
 import DatePicker from 'react-datepicker'
 
 const offeredItemsArray = [

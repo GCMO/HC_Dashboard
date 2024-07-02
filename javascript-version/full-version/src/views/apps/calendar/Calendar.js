@@ -39,8 +39,8 @@ const Calendar = props => {
     direction,
     updateEvent,
     calendarApi,
-    calendarsColor,
     setCalendarApi,
+    calendarsColor,
     handleSelectEvent,
     handleLeftSidebarToggle,
     handleAddEventSidebarToggle

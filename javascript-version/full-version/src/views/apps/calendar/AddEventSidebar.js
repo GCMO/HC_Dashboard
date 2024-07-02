@@ -29,6 +29,7 @@ import { useForm, Controller } from 'react-hook-form'
 // ** File Imports
 import { fetchEvents, addEvent, updateEvent, deleteEvent } from 'src/store/apps/calendar'; 
 import Icon from 'src/@core/components/icon'
+// import generateEventInstances from '../../../@core/utils/eventGenerator'; 
 
 // ** Styled Components
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
@@ -50,28 +51,25 @@ const defaultState = {
 }
 
 const AddEventSidebar = props => {
-  const {
-    store,
-    dispatch,
-    addEvent,
-    updateEvent,
-    deleteEvent,
-    drawerWidth,
-    calendarApi,
+
+  const { 
+    store, 
+    dispatch, 
+    addEvent, 
+    updateEvent, 
+    deleteEvent, 
+    drawerWidth, 
+    calendarApi, 
     handleSelectEvent,
-    addEventSidebarOpen,
+    addEventSidebarOpen, 
     handleAddEventSidebarToggle
   } = props
 
   // ** States
   const [values, setValues] = useState(defaultState)
-
-  const {
-    control,
-    setValue,
-    clearErrors,
-    handleSubmit,
-    formState: { errors }
+  
+  // useForm
+  const { control, setValue, clearErrors, handleSubmit, formState: { errors }
   } = useForm({ defaultValues: { title: '' } })
 
   const handleSidebarClose = async () => {
@@ -81,6 +79,7 @@ const AddEventSidebar = props => {
     handleAddEventSidebarToggle()
   }
 
+  // PAYLOAD
   const onSubmit = async data => {
     const modifiedEvent = {
       url: values.url,
@@ -93,20 +92,45 @@ const AddEventSidebar = props => {
         calendar: capitalize(values.calendar),
         guests: values.guests && values.guests.length ? values.guests : undefined,
         description: values.description.length ? values.description : undefined,
-        duration: values.duration ? values.duration : "60min",
-        repeat: values.repeat && values.repeat.length ? values.repeat : "never" ,
+        duration: values.duration ? values.duration : '60min',
+        repeat: values.event_repeat && values.event_repeat.length ? values.event_repeat : 'never', // Ensure repeat is included
       },
     };
-    if (store.selectedEvent === null || (store.selectedEvent !== null && !store.selectedEvent.title.length)) {
-      await dispatch(addEvent(modifiedEvent))
-    } else {
-      await dispatch(updateEvent({ id: store.selectedEvent.id, ...modifiedEvent }))
-    }
-    await dispatch(fetchEvents(['Personal', 'Business', 'Family', 'Holiday', 'Event'])); // Fetch events after adding/updating so it renders immediately
-    calendarApi.refetchEvents()
-    handleSidebarClose()
-  }
 
+    if (store.selectedEvent === null || (store.selectedEvent !== null && !store.selectedEvent.title.length)) {
+      // Create single event in Strapi
+      await dispatch(addEvent(modifiedEvent));
+    } else {
+      // Update existing event
+      await dispatch(updateEvent({ id: store.selectedEvent.id, ...modifiedEvent }));
+    }
+
+    await dispatch(fetchEvents(['Personal', 'Business', 'Family', 'Holiday', 'Event'])); // Fetch events after adding/updating
+    calendarApi.refetchEvents();
+    handleSidebarClose();
+  };
+
+  // IF CREATING INSTANCES IN THE FE WE NEED THE FOLLOWING.
+  //   const instances = generateEventInstances(modifiedEvent, values.event_repeat, values.startDate);
+
+  //   if (store.selectedEvent === null || (store.selectedEvent !== null && !store.selectedEvent.title.length)) {
+  //     for (const instance of instances) { // Create each instance on event in Strapi
+  //       await dispatch(addEvent(instance));
+  //     }
+  //   } else { // Update existing event and create instances if it is recurring
+  //     await dispatch(updateEvent({ id: store.selectedEvent.id, ...modifiedEvent }));
+  //     if (values.event_repeat !== 'never') {
+  //       for (const instance of instances) {
+  //         await dispatch(addEvent(instance))
+  //       }
+  //     }
+  //   }
+  //   await dispatch(fetchEvents(['Personal', 'Business', 'Family', 'Holiday', 'Event'])); // Fetch events after adding/updating
+  //   calendarApi.refetchEvents();
+  //   handleSidebarClose();
+  // };
+
+  // DELETE
   const handleDeleteEvent = () => {
     console.log("DELETE_selectedEvent", store.selectedEvent);
     if (store.selectedEvent) {
@@ -137,10 +161,11 @@ const AddEventSidebar = props => {
         startDate: event.start !== null ? event.start : new Date(),
         duration: event.extendedProps.duration || '60min',
         repeat: event.extendedProps.repeat || 'never', // ??? event_repeat ???
-      })
+      });
     }
   }, [setValue, store.selectedEvent])
 
+  // RESET SIDEBAR
   const resetToEmptyValues = useCallback(() => {
     setValue('title', '')
     setValues(defaultState)

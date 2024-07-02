@@ -10,7 +10,8 @@ import CardContent from '@mui/material/CardContent'
 import InputAdornment from '@mui/material/InputAdornment'
 
 // ** Third Party Imports
-import format from 'date-fns/format'
+import format from 'date-fns/format/index.js';
+
 import DatePicker from 'react-datepicker'
 
 // ** Icon Imports

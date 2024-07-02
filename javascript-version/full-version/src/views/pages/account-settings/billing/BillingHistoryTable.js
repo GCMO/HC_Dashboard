@@ -26,7 +26,8 @@ import Select from '@mui/material/Select'
 import Icon from 'src/@core/components/icon'
 
 // ** Third Party Imports
-import format from 'date-fns/format'
+import format from 'date-fns/format/index.js';
+
 
 // ** Store & Actions Imports
 import { useDispatch, useSelector } from 'react-redux'

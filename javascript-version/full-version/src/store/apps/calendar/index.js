@@ -24,11 +24,11 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios'
 import Cookies from 'js-cookie';
 import jwt_decode from 'jwt-decode';
-import { addMonths, format } from 'date-fns';
+// import { addMonths, format } from 'date-fns';
 import { identifier } from 'stylis';
 
 // ** Import Files
-import generateEventInstances from 'src/@core/utils/eventGenerator';
+// import generateEventInstances from 'src/@core/utils/eventGenerator';
 
 
 const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL
@@ -61,12 +61,11 @@ console.log('JWT', jwtToken)
       description: event.event_description,
       location: event.event_location,
       duration: event.event_duration,
-    },
-    // Add FullCalendar rrule for repeating events
+    }, // Add FullCalendar rrule for repeating events
     rrule: event.event_repeat !== 'never' ? {
       freq: event.event_repeat.toLowerCase(),
       dtstart: event.event_start
-    } : undefined
+    } : null
   }));
 
 return events; 
@@ -77,9 +76,8 @@ return events;
 // ** ADD EVENT - POST
 export const addEvent = createAsyncThunk('appCalendar/addEvent', async (event, { dispatch }) => {
   const idDecoder = jwt_decode(jwtToken);   // decode id from JWT   
-
-  console.log('USERID', idDecoder.id);
   const UserId = idDecoder.id;
+  console.log('USERID', idDecoder.id);
 
   const strapiEvent = {
     event_title: event.title,
@@ -88,44 +86,48 @@ export const addEvent = createAsyncThunk('appCalendar/addEvent', async (event, {
     event_allDay: event.allDay,
     event_calendar: event.extendedProps.calendar,
     event_alert: event.extendedProps.alert,
-    event_repeat: 'never',
+    event_repeat: event.extendedProps.repeat,
     event_description: event.extendedProps.description,
     event_location: event.extendedProps.location,
     event_duration: event.extendedProps.duration,
-    user: UserId
+    user: UserId,
+    rrule: event.extendedProps.repeat !== 'never' ? {
+      freq: event.extendedProps.repeat.toLowerCase(),
+      dtstart: event.start
+    } : null
   };
 
   const response = await axios.post(`${strapiUrl}/calendars`, {
       data: strapiEvent
-    },
-    { headers: {
+    }, { 
+      headers: {
     'Authorization': `Bearer ${jwtToken}`,
     'Content-Type': 'application/json',
     }},
   );
 
-  const newEvent = response.data.event;
-
-  if (newEvent.event_repeat !== 'never') {
-    const instances = generateEventInstances(newEvent, newEvent.event_repeat);
-    for (const instance of instances) { // repeatendly post 
-      await axios.post(`${strapiUrl}/calendars`, {
-        data: {... instance,
-          event_repeat: 'never', // ensure each instance doesnt repeat
-          user: UserId,
-        }}, {
-        headers: {
-          'Authorization': `Bearer ${jwtToken}`,
-          'Content-Type': 'application/json',
-        }},
-      );
-    }
-  }
+  // This logic was to handle the creating of repeated entries in the BE. No we just send one event and the BE creates the repeated events.
+  // const newEvent = response.data.event;
+  
+  // // If the event has a repeat option, generate instances for each repeat occurrence.
+  // if (newEvent.event_repeat !== 'never') {
+  //   const instances = generateEventInstances(newEvent, newEvent.event_repeat);
+  //   for (const instance of instances) { // repeatendly post 
+  //     await axios.post(`${strapiUrl}/calendars`, {
+  //       data: {... instance,
+  //         event_repeat: event.event_repeat || 'never', // ensure each instance doesnt repeat
+  //         user: UserId,
+  //       }}, {
+  //       headers: {
+  //         'Authorization': `Bearer ${jwtToken}`,
+  //         'Content-Type': 'application/json',
+  //       }},
+  //     );
+  //   }
+  // }
 
   await dispatch(fetchEvents(['Personal', 'Business', 'Family', 'Holiday', 'Event']));
-  
-  return newEvent;
-  console.log("POSTdata", newEvent)
+  return response.data.event //newEvent;
 })
 
 // ** UPDATE EVENT
@@ -148,76 +150,45 @@ export const updateEvent = createAsyncThunk('appCalendar/updateEvent', async (ev
     event_description: event.extendedProps.description || event.event_description,
     event_location: event.extendedProps.location || event.event_location,
     event_duration: event.extendedProps.duration || event.event_duration,
-    users_permissions_user: userId
-
-    // users_permissions_user: event.extendedProps.users_permissions_user
+    users_permissions_user: userId,
+    rrule: event.extendedProps.repeat !== 'never' ? {
+      freq: event.extendedProps.repeat.toLowerCase(),
+      dtstart: event.start
+    } : null
   }
 
-  await axios.put(`${strapiUrl}/calendars/${eventId}`, {
+   const response = await axios.put(`${strapiUrl}/calendars/${eventId}`, {
       data: strapiUpdateEvent
     }, { 
-      method: 'PUT',
       headers: {
       'Authorization': `Bearer ${jwtToken}`,
       'Content-Type': 'application/json',
     }},
   );
 
-  if (event.extendedProps.event_repeat !== 'never') {
-    const instances = generateEventInstances(event, event.extendedProps.event_repeat);
-    for ( const instance of instances) {
-      await axios.post(`${strapiUrl}/calendars`, {
-        data: { ...instance,
-          event_repeat: 'never',
-          user: userId,
-        }},{
-        headers:{
-          'Authorization': `Bearer ${jwtToken}`,
-          'Content-Type': 'application/json',
-        }}
-      );
-    }
-  }
+  // as above this logic was to created repeated events in the BE
+  // if (event.extendedProps.event_repeat !== 'never') {
+  //   const instances = generateEventInstances(event, event.extendedProps.event_repeat);
+  //   for ( const instance of instances) {
+  //     await axios.post(`${strapiUrl}/calendars`, {
+  //       data: { ...instance,
+  //         event_repeat: event.event_repeat || 'never', // ensure each instance doesnt repeat
+  //         user: userId,
+  //       }},{
+  //       headers:{
+  //         'Authorization': `Bearer ${jwtToken}`,
+  //         'Content-Type': 'application/json',
+  //       }}
+  //     );
+  //   }
+  // }
 
   await dispatch(fetchEvents(['Personal', 'Business', 'Family', 'Holiday', 'Event']))
   
   console.log("PUTdata", response.data.calendars)
 
-  return event // response.data.event
+  return response.data.event
 });
-
-// To ensure periodic auto-generation of events. Checks the events in the store and generates instances if the latest instance is less than a month from now
-const generateMissingInstances = async () => {
-  const state = getState().calendar;
-  const allEvents = state.events;
-  const now = new Date();
-
-  for (const event of allEvents) {
-    if (event.extendedProps.event_repeat !== 'never') {
-      const latestInstance = new Date(Math.max(...allEvents.filter(e => e.title === event.title).map(e => new Date(e.start))));
-      if (latestInstance < addMonths(now, 1)) {
-        const instances = generateEventInstances(event, event.extendedProps.event_repeat, latestInstance);
-        for (const instance of instances) {
-          await axios.post(`${strapiUrl}/calendars`, {
-            data: {
-              ...instance,
-              event_repeat: 'never',
-              user: event.user,
-            }}, {
-            headers: {
-              'Authorization': `Bearer ${jwtToken}`,
-              'Content-Type': 'application/json',
-            }},
-          );
-        }
-      }
-    }
-  }
-};
-
-// this function runs daily to ensure events are always generated for the next three months.
-setInterval(generateMissingInstances, 24 * 60 * 60 * 1000); // Run daily
-
 
 
 // ** DELETE EVENT
@@ -225,8 +196,8 @@ export const deleteEvent = createAsyncThunk('appCalendar/deleteEvent', async (id
 
   console.log("idDelete", identifier)
 
-  await axios.delete(`${strapiUrl}/calendars/${id}`, { 
-    // data: {id : event.id},
+  const response = await axios.delete(`${strapiUrl}/calendars/${id}`, { 
+    data: {id : id},
     headers: {
     'Authorization': `Bearer ${jwtToken}`,
     'Content-Type': 'application/json',
@@ -235,7 +206,7 @@ export const deleteEvent = createAsyncThunk('appCalendar/deleteEvent', async (id
 
   await dispatch(fetchEvents(['Personal', 'Business', 'Family', 'Holiday', 'Event']))
 
-  return id; // return response.data.event
+  return response.data.event; // return id
 })
  
 // ** Reducer for the Calendars

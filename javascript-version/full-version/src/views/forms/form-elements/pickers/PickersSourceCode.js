@@ -649,7 +649,8 @@ import Box from '@mui/material/Box'
 import TextField from '@mui/material/TextField'
 
 // ** Third Party Imports
-import format from 'date-fns/format'
+import format from 'date-fns/format/index.js';
+
 import addDays from 'date-fns/addDays'
 import DatePicker from 'react-datepicker'
 

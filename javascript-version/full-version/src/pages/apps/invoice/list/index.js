@@ -25,7 +25,7 @@ import { DataGrid } from '@mui/x-data-grid'
 import Icon from 'src/@core/components/icon'
 
 // ** Third Party Imports
-import format from 'date-fns/format'
+import format from 'date-fns/format/index.js';
 import DatePicker from 'react-datepicker'
 
 // ** Store & Actions Imports
