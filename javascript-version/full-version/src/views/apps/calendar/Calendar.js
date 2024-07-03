@@ -8,7 +8,6 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import bootstrap5Plugin from '@fullcalendar/bootstrap5'
 import interactionPlugin from '@fullcalendar/interaction'
-import rrulePlugin from '@fullcalendar/rrule';
 
 // ** Third Party Style Import
 import 'bootstrap-icons/font/bootstrap-icons.css'
@@ -58,33 +57,14 @@ const Calendar = props => {
   useEffect(() => {
     if (calendarApi) {
       calendarApi.removeAllEvents();
-      calendarApi.addEventSource(store.events.map(event => {
-        const repeatFreq = event.extendedProps.repeat || 'never';
-        if (repeatFreq !== 'never') {
-          return { ...event, rrule: {
-            freq: repeatFreq.toLowerCase(),
-            dtstart: event.start,
-          }}
-        }
-        return event
-      })); 
+      calendarApi.addEventSource(store.events)
     }
   }, [store.events, calendarApi]); 
 
   // ** calendarOptions(Props)
   if (store) {
     const calendarOptions = {
-      // events: store.events.map(event => {
-      //   console.log("STOREDATA", store.events);
-      //   if (event.extendedProps.event_repeat !== 'never') {
-      //     return { ...event, rrule: {
-      //       freq: event.extendedProps.event_repeat.toLowerCase(),
-      //       dtstart: event.start,
-      //     }}
-      //   }
-      //   return event
-      // }),
-      plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin, bootstrap5Plugin, rrulePlugin],
+      plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin, bootstrap5Plugin, ], //rrulePlugin
       initialView: 'dayGridMonth',
       headerToolbar: {
         start: 'sidebarToggle, prev, next, title',

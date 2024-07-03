@@ -1,35 +1,22 @@
 /**
  * AddEventSidebar component for managing calendar events.
  *
- * @component
- * @param {Object} props - The component props.
- * @param {Object} props.store - The store object.
- * @param {Function} props.dispatch - The dispatch function.
- * @param {Function} props.addEvent - The function to add a new event.
- * @param {Function} props.updateEvent - The function to update an existing event.
- * @param {Function} props.deleteEvent - The function to delete an event.
- * @param {number} props.drawerWidth - The width of the sidebar drawer.
- * @param {Object} props.calendarApi - The calendar API object.
- * @param {Function} props.handleSelectEvent - The function to handle event selection.
- * @param {boolean} props.addEventSidebarOpen - Flag indicating if the add event sidebar is open.
- * @param {Function} props.handleAddEventSidebarToggle - The function to toggle the add event sidebar.
- * @returns {JSX.Element} The AddEventSidebar component.
  */
 
 // ** React Imports
-import { useState, useEffect, forwardRef, useCallback, Fragment } from 'react'
+import { useState, useEffect, forwardRef, useCallback, Fragment } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 
 // ** MUI Imports
-import {Box, Drawer, Select, Switch, Button, MenuItem, IconButton, TextField, InputLabel, Typography, FormControl, FormHelperText, FormControlLabel} from '@mui/material'
+import {Box, Drawer, Select, Switch, Button, MenuItem, IconButton, TextField, InputLabel, Typography, Tooltip, FormControl, FormHelperText, FormControlLabel, CircularProgress, Autocomplete} from '@mui/material'
 
 // ** Third Party Imports
 import DatePicker from 'react-datepicker'
 import { useForm, Controller } from 'react-hook-form'
 
 // ** File Imports
-import { fetchEvents, addEvent, updateEvent, deleteEvent } from 'src/store/apps/calendar'; 
+import { fetchEvents, addEvent, updateEvent, deleteEvent, fetchServices, } from 'src/store/apps/calendar'; 
 import Icon from 'src/@core/components/icon'
-// import generateEventInstances from '../../../@core/utils/eventGenerator'; 
 
 // ** Styled Components
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
@@ -51,7 +38,6 @@ const defaultState = {
 }
 
 const AddEventSidebar = props => {
-
   const { 
     store, 
     dispatch, 
@@ -64,9 +50,15 @@ const AddEventSidebar = props => {
     addEventSidebarOpen, 
     handleAddEventSidebarToggle
   } = props
-
+  
   // ** States
   const [values, setValues] = useState(defaultState)
+  const services = useSelector(state =>  state.calendar.services || []);
+  // console.log("servicesVAR", services);  
+  const [selectedService, setSelectedService] = useState(''); // for the Title Selector
+  const [loading, setLoading] = useState(false); // for the Spinner
+
+
   
   // useForm
   const { control, setValue, clearErrors, handleSubmit, formState: { errors }
@@ -79,12 +71,23 @@ const AddEventSidebar = props => {
     handleAddEventSidebarToggle()
   }
 
+  // Fetch User.Services when component mounts
+  useEffect(() => {
+    dispatch(fetchServices());
+  }, [dispatch]);
+
+  const handleServiceChange = (event) => {
+    setSelectedService(event.target.value);
+  };
+
   // PAYLOAD
   const onSubmit = async data => {
+    setLoading(true); // start loading the spinner
+
     const modifiedEvent = {
       url: values.url,
       display: 'block',
-      title: data.title,
+      title: selectedService, //data.title,
       start: values.startDate,
       end: values.endDate,
       allDay: values.allDay,
@@ -97,38 +100,22 @@ const AddEventSidebar = props => {
       },
     };
 
-    if (store.selectedEvent === null || (store.selectedEvent !== null && !store.selectedEvent.title.length)) {
-      // Create single event in Strapi
-      await dispatch(addEvent(modifiedEvent));
-    } else {
-      // Update existing event
-      await dispatch(updateEvent({ id: store.selectedEvent.id, ...modifiedEvent }));
-    }
-
-    await dispatch(fetchEvents(['Personal', 'Business', 'Family', 'Holiday', 'Event'])); // Fetch events after adding/updating
-    calendarApi.refetchEvents();
-    handleSidebarClose();
+    try {
+      if (store.selectedEvent === null || (store.selectedEvent !== null && !store.selectedEvent.title.length)) {
+        // Create single event in Strapi
+        await dispatch(addEvent(modifiedEvent));
+      } else {
+        // Update existing event
+        await dispatch(updateEvent({ id: store.selectedEvent.id, ...modifiedEvent }));
+      }
+  
+      await dispatch(fetchEvents(['Personal', 'Business', 'Family', 'Holiday', 'Event'])); // Fetch events after adding/updating
+      calendarApi.refetchEvents();
+      handleSidebarClose();
+    } finally {
+      setLoading(false); // Set loading to false when the operation is complete
+    }  
   };
-
-  // IF CREATING INSTANCES IN THE FE WE NEED THE FOLLOWING.
-  //   const instances = generateEventInstances(modifiedEvent, values.event_repeat, values.startDate);
-
-  //   if (store.selectedEvent === null || (store.selectedEvent !== null && !store.selectedEvent.title.length)) {
-  //     for (const instance of instances) { // Create each instance on event in Strapi
-  //       await dispatch(addEvent(instance));
-  //     }
-  //   } else { // Update existing event and create instances if it is recurring
-  //     await dispatch(updateEvent({ id: store.selectedEvent.id, ...modifiedEvent }));
-  //     if (values.event_repeat !== 'never') {
-  //       for (const instance of instances) {
-  //         await dispatch(addEvent(instance))
-  //       }
-  //     }
-  //   }
-  //   await dispatch(fetchEvents(['Personal', 'Business', 'Family', 'Holiday', 'Event'])); // Fetch events after adding/updating
-  //   calendarApi.refetchEvents();
-  //   handleSidebarClose();
-  // };
 
   // DELETE
   const handleDeleteEvent = () => {
@@ -190,6 +177,10 @@ const AddEventSidebar = props => {
   })
 
   const RenderSidebarFooter = () => {
+    if(loading){
+      return <CircularProgress/>;
+    }
+
     if (store.selectedEvent === null || (store.selectedEvent !== null && !store.selectedEvent.title.length)) {
       return (
         <Fragment>
@@ -245,30 +236,41 @@ const AddEventSidebar = props => {
       <Box className='sidebar-body' sx={{ p: theme => theme.spacing(5, 6) }}>
         <DatePickerWrapper>
           <form onSubmit={handleSubmit(onSubmit)} autoComplete='off'>
+
             <FormControl fullWidth sx={{ mb: 6 }}>
-              <Controller name='title' control={control} rules={{ required: true }}
-                render={({ field: { value, onChange } }) => (
-                  <TextField label='Title' value={value} onChange={onChange} error={Boolean(errors.title)} />
-                )}
-              />
-              {errors.title && (
-                <FormHelperText sx={{ color: 'error.main' }} id='event-title-error'>
-                  This field is required
-                </FormHelperText>
-              )}
+              <InputLabel id="service-select-label"></InputLabel>
+                <Autocomplete freeSolo
+                  options={services.map((service) => service.title)}
+                  value={selectedService}
+                  onInputChange={(event, newInputValue) => {
+                    setSelectedService(newInputValue);
+                  }}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Title" variant="outlined"
+                      value={selectedService}
+                      onChange={(event) => setSelectedService(event.target.value)}
+                    />
+                  )}
+                />
+              <Typography sx={{ fontSize: 14, fontStyle: 'italic' }}>
+                Please create your services in Account Settings =&gt; MyServices. They will be shown here.
+              </Typography>
             </FormControl>
-            <FormControl fullWidth sx={{ mb: 6 }}>
+
+            <FormControl fullWidth sx={{ mb: 6 }}> 
               <InputLabel id='event-calendar'>Calendar</InputLabel>
               <Select label='Calendar' value={values.calendar} labelId='event-calendar'
                 onChange={e => setValues({ ...values, calendar: e.target.value })}
-              >
+                >
                 <MenuItem value='Personal'>Personal</MenuItem>
                 <MenuItem value='Business'>Business</MenuItem>
                 <MenuItem value='Family'>Family</MenuItem>
                 <MenuItem value='Holiday'>Holiday</MenuItem>
                 <MenuItem value='Event'>Event</MenuItem>
               </Select>
+                <Typography sx={{fontSize:14, fontStyle:'italic',}}>Only the Business option will be shown to customers, other Calendars remain private.</Typography>
             </FormControl>
+
             <Box sx={{ mb: 6 }}>
               <DatePicker selectsStart id='event-start-date'
                 endDate={values.endDate}
@@ -314,7 +316,7 @@ const AddEventSidebar = props => {
                   <MenuItem value='weekly'>Weekly</MenuItem>
                   <MenuItem value='monthly'>Monthly</MenuItem>
                   <MenuItem value='quarterly'>Quaterly</MenuItem>
-                  <MenuItem value='every year'>Yearly</MenuItem>
+                  <MenuItem value='yearly'>Yearly</MenuItem>
                 </Select>
             </FormControl>
 

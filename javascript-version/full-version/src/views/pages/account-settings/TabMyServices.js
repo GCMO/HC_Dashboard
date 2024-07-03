@@ -72,7 +72,7 @@ const TabMyServices = () => {
   }
   
   // FETCH DATA
-  const { loading, error, data } = useFetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/users/me?populate=*`, {
+  const { loading, error, data } = useFetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/users/me?populate=services`, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${jwtToken}`,
@@ -140,7 +140,6 @@ const TabMyServices = () => {
   };
 
   // DELETE SERVICE
-
   const handleDeleteService = async (id) => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/services/${id}`, {

@@ -27,17 +27,28 @@ import jwt_decode from 'jwt-decode';
 // import { addMonths, format } from 'date-fns';
 import { identifier } from 'stylis';
 
-// ** Import Files
-// import generateEventInstances from 'src/@core/utils/eventGenerator';
-
 
 const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL
 const jwtToken = Cookies.get('jwt'); 
 console.log('JWT', jwtToken)
 
+// ** FETCH THERAPIST SERVICES - to be displayed in AddEventSidebar
+export const fetchServices = createAsyncThunk('appCalendar/fetchServices', async () => {
+  const response = await axios.get(`${strapiUrl}/users/me?populate=services`, {
+    headers: {
+      'Authorization': `Bearer ${jwtToken}`,
+      'Content-Type': 'application/json',
+    }
+  });
+  console.log("SERVICES_DATA", response.data.services)
+  return response.data.services.map(service => ({
+    id: service.id,
+    title:service.service_title,
+  }));
+});
 
-// REFACTOR AXIOS to have the headers automated for all requets
-//** FETCH EVENTS
+
+//** FETCH CALENDAR EVENTS
  export const fetchEvents = createAsyncThunk('appCalendar/fetchEvents', async calendars => {
    const response = await axios.get(`${strapiUrl}/users/me?populate=calendars`, { 
     headers: {
@@ -61,17 +72,11 @@ console.log('JWT', jwtToken)
       description: event.event_description,
       location: event.event_location,
       duration: event.event_duration,
-    }, // Add FullCalendar rrule for repeating events
-    rrule: event.event_repeat !== 'never' ? {
-      freq: event.event_repeat.toLowerCase(),
-      dtstart: event.event_start
-    } : null
+    }, 
   }));
 
 return events; 
 });
-
-
 
 // ** ADD EVENT - POST
 export const addEvent = createAsyncThunk('appCalendar/addEvent', async (event, { dispatch }) => {
@@ -91,10 +96,6 @@ export const addEvent = createAsyncThunk('appCalendar/addEvent', async (event, {
     event_location: event.extendedProps.location,
     event_duration: event.extendedProps.duration,
     user: UserId,
-    rrule: event.extendedProps.repeat !== 'never' ? {
-      freq: event.extendedProps.repeat.toLowerCase(),
-      dtstart: event.start
-    } : null
   };
 
   const response = await axios.post(`${strapiUrl}/calendars`, {
@@ -105,26 +106,6 @@ export const addEvent = createAsyncThunk('appCalendar/addEvent', async (event, {
     'Content-Type': 'application/json',
     }},
   );
-
-  // This logic was to handle the creating of repeated entries in the BE. No we just send one event and the BE creates the repeated events.
-  // const newEvent = response.data.event;
-  
-  // // If the event has a repeat option, generate instances for each repeat occurrence.
-  // if (newEvent.event_repeat !== 'never') {
-  //   const instances = generateEventInstances(newEvent, newEvent.event_repeat);
-  //   for (const instance of instances) { // repeatendly post 
-  //     await axios.post(`${strapiUrl}/calendars`, {
-  //       data: {... instance,
-  //         event_repeat: event.event_repeat || 'never', // ensure each instance doesnt repeat
-  //         user: UserId,
-  //       }}, {
-  //       headers: {
-  //         'Authorization': `Bearer ${jwtToken}`,
-  //         'Content-Type': 'application/json',
-  //       }},
-  //     );
-  //   }
-  // }
 
   await dispatch(fetchEvents(['Personal', 'Business', 'Family', 'Holiday', 'Event']));
   return response.data.event //newEvent;
@@ -151,10 +132,6 @@ export const updateEvent = createAsyncThunk('appCalendar/updateEvent', async (ev
     event_location: event.extendedProps.location || event.event_location,
     event_duration: event.extendedProps.duration || event.event_duration,
     users_permissions_user: userId,
-    rrule: event.extendedProps.repeat !== 'never' ? {
-      freq: event.extendedProps.repeat.toLowerCase(),
-      dtstart: event.start
-    } : null
   }
 
    const response = await axios.put(`${strapiUrl}/calendars/${eventId}`, {
@@ -165,23 +142,6 @@ export const updateEvent = createAsyncThunk('appCalendar/updateEvent', async (ev
       'Content-Type': 'application/json',
     }},
   );
-
-  // as above this logic was to created repeated events in the BE
-  // if (event.extendedProps.event_repeat !== 'never') {
-  //   const instances = generateEventInstances(event, event.extendedProps.event_repeat);
-  //   for ( const instance of instances) {
-  //     await axios.post(`${strapiUrl}/calendars`, {
-  //       data: { ...instance,
-  //         event_repeat: event.event_repeat || 'never', // ensure each instance doesnt repeat
-  //         user: userId,
-  //       }},{
-  //       headers:{
-  //         'Authorization': `Bearer ${jwtToken}`,
-  //         'Content-Type': 'application/json',
-  //       }}
-  //     );
-  //   }
-  // }
 
   await dispatch(fetchEvents(['Personal', 'Business', 'Family', 'Holiday', 'Event']))
   
@@ -209,10 +169,11 @@ export const deleteEvent = createAsyncThunk('appCalendar/deleteEvent', async (id
   return response.data.event; // return id
 })
  
-// ** Reducer for the Calendars
+// ** REDUCER for the Calendars
 export const appCalendarSlice = createSlice({
   name: 'appCalendar',
   initialState: {
+    services: [],
     events: [],
     selectedEvent: null,
     selectedCalendars: ['Personal', 'Business', 'Family', 'Holiday', 'Event']
@@ -245,6 +206,10 @@ export const appCalendarSlice = createSlice({
     builder.addCase(fetchEvents.fulfilled, (state, action) => {
       state.events = action.payload
     })
+    builder.addCase(fetchServices.fulfilled, (state, action) => {
+      console.log("REDUCER 4 SERVICES:", action.payload);
+      state.services = action.payload;
+    });
   }
 })
 
