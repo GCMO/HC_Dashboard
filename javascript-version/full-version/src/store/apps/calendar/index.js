@@ -131,7 +131,7 @@ export const updateEvent = createAsyncThunk('appCalendar/updateEvent', async (ev
     event_description: event.extendedProps.description || event.event_description,
     event_location: event.extendedProps.location || event.event_location,
     event_duration: event.extendedProps.duration || event.event_duration,
-    users_permissions_user: userId,
+    user: userId,
   }
 
    const response = await axios.put(`${strapiUrl}/calendars/${eventId}`, {
