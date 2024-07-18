@@ -91,7 +91,7 @@ const TabMyServices = () => {
   if (error) return <p className="ml-20 text-3xl">Hollllly 🐄... Something went Wrong. Try reloading the page </p>
   if (!servicesList.length) return <p className="mx-15 text-3xl">No services found.</p>;
 
-  console.log("USER", data);
+  console.log("SERVICES_bytherapist", data);
   console.log("JWT", jwtToken);
 
   
@@ -176,8 +176,8 @@ const TabMyServices = () => {
           <form>
             
           <CardContent>
-            <Box sx={{ background:'#4579cc', borderRadius:'7px', padding:'15px', mb:"35px",  }} >
-              <Typography sx={{ ml:"3px", fontStyle:"italic", }} > 
+            <Box sx={{ background:'rgba(69, 121, 204, .3)', borderRadius:'7px', padding:'15px', mb:"35px",  }} >
+              <Typography sx={{ ml:"3px", fontStyle:"italic", fontWeight:"bold" }} > 
                 In this section please describe precisely the services you will provide. Each service will be later selectable in your private Calendar of appointments as ready-made options and visible to customers in your profile section. <br/><br/>
                 - We have noticed that therapists offering more services, receive less bookings. So, we recommend you publish a maximum of 5 services to make it easier for your customers to choose from.   
                 
@@ -309,8 +309,8 @@ const TabMyServices = () => {
               </Grid>
 
             <Grid item xs={12}>
-              <Box sx={{ background:'#4579cc', borderRadius:'7px', padding:'15px', marginBottom:"5px",  }} >
-                <Typography sx={{ marginLeft:"15px", fontStyle:"italic",  }} > 
+              <Box sx={{ background:'rgba(69, 121, 204, .3)', borderRadius:'7px', padding:'15px', marginBottom:"5px",  }} >
+                <Typography sx={{ marginLeft:"15px", fontStyle:"italic", fontWeight: "bold" }} > 
                   All of your services are displayed below and on you Profile page. You can choose to delete them at any time. 
                 </Typography>
               </Box>
@@ -318,13 +318,13 @@ const TabMyServices = () => {
 
             <Grid item xs={12}>
               { servicesList.map((service) => (
-                <Box key={service.id} sx={{ display:'flex', flexDirection:'row', alignItems: 'center', justifyContent:'space-between', background:'lightgrey', borderRadius:'7px', padding:'15px', mb:"5px",  }} >
-                  <Typography sx={{ background:'lightsteelblue', px:'10px', py:'7px', borderRadius:'5px', mx:"15px", color:'black', boxShadow:'0 2px 4px rgba(0, 0, 0, 0.2)' }} > 
+                <Box key={service.id} sx={{ display:'flex', flexDirection:'row', alignItems: 'center', justifyContent:'space-between', background:'lightsteelblue', borderRadius:'7px', padding:'15px', mb:"5px", }} >
+                  <Typography sx={{ background:'lightsteelblue', px:'10px', py:'7px', borderRadius:'5px', mx:"15px", color:'black', fontSize:'21px',}} > 
                     <b className='text-black-800'>{service.service_title} </b>  
                     - {service.service_currency} {service.service_price} - {service.service_duration} 
                     - {service.service_participants} - {service.service_modality}
                   </Typography>
-                  <Button  sx={{px:'10px', py:'7px', color:'white', borderRadius:'5px', backgroundColor:'#cf5757', boxShadow:'0 2px 4px rgba(0, 0, 0, 0.3)'}}
+                  <Button  sx={{px:'8px', py:'7px', color:'white', borderRadius:'5px', backgroundColor:'#cf5757', boxShadow:'0 2px 4px rgba(0, 0, 0, 0.3)'}}
                     onClick={ ()=>handleDeleteService(service.id) } >Delete</Button>
                   {/* <ButtonStyled variant='outlined'>Hide</ButtonStyled> */}
                 </Box>

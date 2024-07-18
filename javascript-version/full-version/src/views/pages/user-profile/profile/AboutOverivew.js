@@ -44,11 +44,8 @@ const renderTeams = arr => {
   if (arr && arr.length) {
     return arr.map((item, index) => {
       return (
-        <Box
-          key={index}
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
+        <Box key={index}
+          sx={{ display: 'flex', alignItems: 'center',
             '&:not(:last-of-type)': { mb: 4 },
             '& svg': { color: `${item.color}.main` }
           }}

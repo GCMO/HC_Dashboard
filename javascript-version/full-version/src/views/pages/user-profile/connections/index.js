@@ -2,13 +2,7 @@
 import Link from 'next/link'
 
 // ** MUI Components
-import Box from '@mui/material/Box'
-import Grid from '@mui/material/Grid'
-import Card from '@mui/material/Card'
-import Avatar from '@mui/material/Avatar'
-import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
-import CardContent from '@mui/material/CardContent'
+import {Box, Grid, Card, Avatar, Button, Typography, CardContent, } from '@mui/material';
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
